@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/BarTar213/go-template/config"
+	"github.com/BarTar213/movies-service/config"
+	"github.com/BarTar213/movies-service/storage"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +14,7 @@ type Api struct {
 	Router *gin.Engine
 	Config *config.Config
 	Logger *log.Logger
+	Storage storage.Storage
 }
 
 func WithConfig(conf *config.Config) func(a *Api) {
@@ -27,6 +29,12 @@ func WithLogger(logger *log.Logger) func(a *Api) {
 	}
 }
 
+func WithStorage(storage storage.Storage) func(a *Api) {
+	return func(a *Api) {
+		a.Storage = storage
+	}
+}
+
 func NewApi(options ...func(api *Api)) *Api {
 	a := &Api{
 		Router: gin.Default(),
@@ -37,12 +45,13 @@ func NewApi(options ...func(api *Api)) *Api {
 	}
 
 	a.Router.GET("/", a.health)
+	a.Router.GET("/movies/:id", a.health)
 
 	return a
 }
 
 func (a *Api) Run() error {
-	return a.Router.Run(a.Config.Port)
+	return a.Router.Run(a.Config.Api.Port)
 }
 
 func (a *Api) health(ctx *gin.Context) {

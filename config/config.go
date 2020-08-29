@@ -1,13 +1,25 @@
 package config
 
 import (
-	"fmt"
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
+	Api Api
+	Postgres Postgres
+}
+
+type Api struct {
 	Port string
+}
+
+type Postgres struct {
+	Address  string
+	User     string
+	Password string
+	Database string
 }
 
 func NewConfig(fileName string) *Config {
@@ -24,7 +36,6 @@ func NewConfig(fileName string) *Config {
 	if err != nil {
 		log.Fatalf("unable to decode into struct, %v", err)
 	}
-	fmt.Print(config)
 
 	return &config
 }

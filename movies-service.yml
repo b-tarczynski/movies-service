@@ -1,0 +1,7 @@
+api:
+  port: ":8080"
+postgres:
+  address: "localhost:5432"
+  user: "postgres"
+  password: "admin"
+  database: "vimo"
