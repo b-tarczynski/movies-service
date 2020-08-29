@@ -13,7 +13,7 @@ type Postgres struct {
 }
 
 type Storage interface {
-	GetMovie(id int, movie *models.Movie)
+	GetMovie(movie *models.Movie) error
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {
@@ -32,6 +32,14 @@ func NewPostgres(config *config.Postgres) (Storage, error) {
 	return &Postgres{db: db}, nil
 }
 
-func (p *Postgres) GetMovie(id int, movie *models.Movie) {
-	//todo: implement
+func (p *Postgres) GetMovie(movie *models.Movie) error {
+	err := p.db.Model(movie).
+		WherePK().
+		Relation("Genres").
+		Relation("Countries").
+		Relation("Companies").
+		Relation("Languages").
+		Select()
+
+	return err
 }

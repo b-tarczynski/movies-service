@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/BarTar213/movies-service/config"
+	"github.com/BarTar213/movies-service/handlers"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/gin-gonic/gin"
 )
@@ -44,8 +45,10 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
+	h := handlers.NewMovieHandlers(a.Storage, a.Logger)
+
 	a.Router.GET("/", a.health)
-	a.Router.GET("/movies/:id", a.health)
+	a.Router.GET("/movies/:id", h.GetMovie)
 
 	return a
 }
