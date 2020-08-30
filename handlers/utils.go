@@ -13,6 +13,7 @@ const (
 	invalidHeadersErr      = "invalid account headers"
 	invalidRequestBodyErr  = "invalid request body"
 	invalidMovieIdParamErr = "invalid param - movieId"
+	invalidCommentIdParamErr = "invalid param - commentId"
 )
 
 func handlePostgresError(c *gin.Context, l *log.Logger, err error) {

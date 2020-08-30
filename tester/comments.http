@@ -13,3 +13,21 @@ X-Account: bar
 }
 
 ###
+
+PUT http://localhost:8080/comments/4
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+{
+  "content": "updated test comment"
+}
+
+###
+
+DELETE http://localhost:8080/comments/3
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+###
