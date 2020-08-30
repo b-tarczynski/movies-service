@@ -14,6 +14,8 @@ type Postgres struct {
 
 type Storage interface {
 	GetMovie(movie *models.Movie) error
+	GetMovieComments(movieId int) ([]models.Comment, error)
+	AddMovieComment(comment *models.Comment) error
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {
@@ -40,6 +42,22 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 		Relation("Companies").
 		Relation("Languages").
 		Select()
+
+	return err
+}
+
+func (p *Postgres) GetMovieComments(movieId int) ([]models.Comment, error) {
+	comments := make([]models.Comment, 0)
+	err := p.db.Model(&comments).
+		Where("movie_id = ?", movieId).
+		Order("create_date ASC").
+		Select()
+
+	return comments, err
+}
+
+func (p *Postgres) AddMovieComment(comment *models.Comment) error {
+	_, err := p.db.Model(comment).Returning("*").Insert()
 
 	return err
 }

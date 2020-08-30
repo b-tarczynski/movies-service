@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	Api Api
+	Api      Api
 	Postgres Postgres
+	Headers  Headers
 }
 
 type Api struct {
@@ -20,6 +21,11 @@ type Postgres struct {
 	User     string
 	Password string
 	Database string
+}
+
+type Headers struct {
+	Account string
+	Id      string
 }
 
 func NewConfig(fileName string) *Config {

@@ -1,0 +1,15 @@
+GET http://localhost:8080/movies/1/comments
+Accept: application/json
+
+###
+
+POST http://localhost:8080/movies/1/comments
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+{
+  "content": "test comment here"
+}
+
+###

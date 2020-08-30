@@ -11,10 +11,10 @@ import (
 )
 
 type Api struct {
-	Port   string
-	Router *gin.Engine
-	Config *config.Config
-	Logger *log.Logger
+	Port    string
+	Router  *gin.Engine
+	Config  *config.Config
+	Logger  *log.Logger
 	Storage storage.Storage
 }
 
@@ -45,10 +45,18 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
-	h := handlers.NewMovieHandlers(a.Storage, a.Logger)
+	mh := handlers.NewMovieHandlers(a.Storage, a.Logger)
+	ch := handlers.NewCommentHandlers(a.Storage, a.Logger, &a.Config.Headers)
 
 	a.Router.GET("/", a.health)
-	a.Router.GET("/movies/:id", h.GetMovie)
+	a.Router.GET("/movies/:movieId", mh.GetMovie)
+	comments := a.Router.Group("/movies/:movieId/comments")
+	{
+		comments.GET("", ch.GetComments)
+		comments.POST("", ch.AddComment)
+		comments.PUT("/:commId")
+		comments.DELETE("/:commId")
+	}
 
 	return a
 }

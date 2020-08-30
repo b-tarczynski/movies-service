@@ -5,3 +5,6 @@ postgres:
   user: "postgres"
   password: "admin"
   database: "vimo"
+headers:
+  account: "X-Account"
+  id: "X-Account-Id"
