@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	invalidHeadersErr      = "invalid account headers"
-	invalidRequestBodyErr  = "invalid request body"
-	invalidMovieIdParamErr = "invalid param - movieId"
-	invalidCommentIdParamErr = "invalid param - commentId"
+	invalidHeadersErr            = "invalid account headers"
+	invalidRequestBodyErr        = "invalid request body"
+	invalidMovieIdParamErr       = "invalid param - movieId"
+	invalidCommentIdParamErr     = "invalid param - commentId"
+	invalidPaginationQueryParams = "invalid pagination query params"
 )
 
 func handlePostgresError(c *gin.Context, l *log.Logger, err error) {

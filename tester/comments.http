@@ -1,9 +1,9 @@
-GET http://localhost:8080/movies/1/comments
+GET http://localhost:8080/comments?movieId=1&offset=5
 Accept: application/json
 
 ###
 
-POST http://localhost:8080/movies/1/comments
+POST http://localhost:8080/comments?movieId=1
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
@@ -14,7 +14,7 @@ X-Account: bar
 
 ###
 
-PUT http://localhost:8080/comments/4
+PUT http://localhost:8080/comments/10
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar

@@ -31,13 +31,20 @@ func NewCommentHandlers(storage storage.Storage, logger *log.Logger, headers *co
 }
 
 func (h *CommentHandlers) GetComments(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param(movieIdKey))
+	id, err := strconv.Atoi(c.Query(movieIdKey))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
 		return
 	}
 
-	comments, err := h.storage.GetMovieComments(id)
+	params := models.PaginationParams{}
+	err = c.ShouldBindQuery(&params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})
+		return
+	}
+
+	comments, err := h.storage.GetMovieComments(id, &params)
 	if err != nil {
 		handlePostgresError(c, h.logger, err)
 		return
@@ -54,7 +61,7 @@ func (h *CommentHandlers) AddComment(c *gin.Context) {
 		return
 	}
 
-	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	movieId, err := strconv.Atoi(c.Query(movieIdKey))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
 		return

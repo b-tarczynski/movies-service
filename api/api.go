@@ -50,12 +50,12 @@ func NewApi(options ...func(api *Api)) *Api {
 	movies := a.Router.Group("/movies/:movieId")
 	{
 		movies.GET("", mh.GetMovie)
-		movies.GET("/comments", ch.GetComments)
-		movies.POST("/comments", ch.AddComment)
 	}
 
 	comments := a.Router.Group("/comments")
 	{
+		comments.GET("", ch.GetComments)
+		comments.POST("", ch.AddComment)
 		comments.PUT("/:commId", ch.UpdateComment)
 		comments.DELETE("/:commId", ch.DeleteComment)
 	}

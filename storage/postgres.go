@@ -19,7 +19,7 @@ type Postgres struct {
 type Storage interface {
 	GetMovie(movie *models.Movie) error
 
-	GetMovieComments(movieId int) ([]models.Comment, error)
+	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
 	AddMovieComment(comment *models.Comment) error
 	UpdateComment(comment *models.Comment) error
 	DeleteComment(comment *models.Comment) error
@@ -53,11 +53,13 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 	return err
 }
 
-func (p *Postgres) GetMovieComments(movieId int) ([]models.Comment, error) {
+func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 	err := p.db.Model(&comments).
 		Where("movie_id = ?", movieId).
 		Order("create_date ASC").
+		Offset(params.Offset).
+		Limit(params.Limit).
 		Select()
 
 	return comments, err
