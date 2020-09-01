@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/gin-gonic/gin"
@@ -18,14 +17,12 @@ const (
 
 type CommentHandlers struct {
 	storage storage.Storage
-	headers *config.Headers
 	logger  *log.Logger
 }
 
-func NewCommentHandlers(storage storage.Storage, logger *log.Logger, headers *config.Headers) *CommentHandlers {
+func NewCommentHandlers(storage storage.Storage, logger *log.Logger) *CommentHandlers {
 	return &CommentHandlers{
 		storage: storage,
-		headers: headers,
 		logger:  logger,
 	}
 }

@@ -45,7 +45,7 @@ func NewApi(options ...func(api *Api)) *Api {
 	}
 
 	mh := handlers.NewMovieHandlers(a.Storage, a.Logger)
-	ch := handlers.NewCommentHandlers(a.Storage, a.Logger, &a.Config.Headers)
+	ch := handlers.NewCommentHandlers(a.Storage, a.Logger)
 
 	movies := a.Router.Group("/movies/:movieId")
 	{
