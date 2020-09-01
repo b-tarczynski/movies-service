@@ -8,12 +8,21 @@ import (
 	"github.com/go-pg/pg/v10"
 )
 
+const (
+	all = "*"
+)
+
 type Postgres struct {
 	db *pg.DB
 }
 
 type Storage interface {
 	GetMovie(movie *models.Movie) error
+
+	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
+	AddMovieComment(comment *models.Comment) error
+	UpdateComment(comment *models.Comment) error
+	DeleteComment(comment *models.Comment) error
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {
@@ -40,6 +49,44 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 		Relation("Companies").
 		Relation("Languages").
 		Select()
+
+	return err
+}
+
+func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
+	comments := make([]models.Comment, 0)
+	err := p.db.Model(&comments).
+		Where("movie_id = ?", movieId).
+		Order("create_date ASC").
+		Offset(params.Offset).
+		Limit(params.Limit).
+		Select()
+
+	return comments, err
+}
+
+func (p *Postgres) AddMovieComment(comment *models.Comment) error {
+	_, err := p.db.Model(comment).Returning(all).Insert()
+
+	return err
+}
+
+func (p *Postgres) UpdateComment(comment *models.Comment) error {
+	_, err := p.db.Model(comment).
+		WherePK().
+		Where("user_id = ?user_id").
+		Set("content = ?content, update_date = ?update_date").
+		Returning(all).
+		Update()
+
+	return err
+}
+
+func (p *Postgres) DeleteComment(comment *models.Comment) error {
+	_, err := p.db.Model(comment).
+		WherePK().
+		Where("user_id = ?user_id").
+		Delete()
 
 	return err
 }

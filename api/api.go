@@ -2,7 +2,6 @@ package api
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/handlers"
@@ -11,10 +10,10 @@ import (
 )
 
 type Api struct {
-	Port   string
-	Router *gin.Engine
-	Config *config.Config
-	Logger *log.Logger
+	Port    string
+	Router  *gin.Engine
+	Config  *config.Config
+	Logger  *log.Logger
 	Storage storage.Storage
 }
 
@@ -45,18 +44,25 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
-	h := handlers.NewMovieHandlers(a.Storage, a.Logger)
+	mh := handlers.NewMovieHandlers(a.Storage, a.Logger)
+	ch := handlers.NewCommentHandlers(a.Storage, a.Logger)
 
-	a.Router.GET("/", a.health)
-	a.Router.GET("/movies/:id", h.GetMovie)
+	movies := a.Router.Group("/movies/:movieId")
+	{
+		movies.GET("", mh.GetMovie)
+	}
+
+	comments := a.Router.Group("/comments")
+	{
+		comments.GET("", ch.GetComments)
+		comments.POST("", ch.AddComment)
+		comments.PUT("/:commId", ch.UpdateComment)
+		comments.DELETE("/:commId", ch.DeleteComment)
+	}
 
 	return a
 }
 
 func (a *Api) Run() error {
 	return a.Router.Run(a.Config.Api.Port)
-}
-
-func (a *Api) health(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, "healthy")
 }

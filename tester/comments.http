@@ -1,0 +1,33 @@
+GET http://localhost:8080/comments?movieId=1&offset=5
+Accept: application/json
+
+###
+
+POST http://localhost:8080/comments?movieId=1
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+{
+  "content": "test comment here"
+}
+
+###
+
+PUT http://localhost:8080/comments/10
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+{
+  "content": "updated test comment"
+}
+
+###
+
+DELETE http://localhost:8080/comments/3
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+###
