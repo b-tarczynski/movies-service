@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/models"
@@ -18,6 +19,7 @@ type Postgres struct {
 
 type Storage interface {
 	GetMovie(movie *models.Movie) error
+	ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error)
 
 	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
 	AddMovieComment(comment *models.Comment) error
@@ -53,11 +55,24 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 	return err
 }
 
+func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error) {
+	movies := make([]models.MoviePreview, 0)
+	fmt.Println(title)
+	err := p.db.Model(&movies).
+		Where("title like ?", title).
+		Order(params.OrderBy).
+		Offset(params.Offset).
+		Limit(params.Limit).
+		Select()
+
+	return movies, err
+}
+
 func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 	err := p.db.Model(&comments).
 		Where("movie_id = ?", movieId).
-		Order("create_date ASC").
+		Order(params.OrderBy).
 		Offset(params.Offset).
 		Limit(params.Limit).
 		Select()

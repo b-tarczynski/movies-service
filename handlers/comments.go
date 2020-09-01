@@ -34,7 +34,7 @@ func (h *CommentHandlers) GetComments(c *gin.Context) {
 		return
 	}
 
-	params := models.PaginationParams{}
+	params := models.PaginationParams{OrderBy: "create_date"}
 	err = c.ShouldBindQuery(&params)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -41,4 +42,23 @@ func (h *MovieHandlers) GetMovie(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, movie)
+}
+
+func (h *MovieHandlers) ListMovies(c *gin.Context) {
+	params := models.PaginationParams{OrderBy: "vote_average"}
+	err := c.ShouldBindQuery(&params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})
+		return
+	}
+
+	title := fmt.Sprintf("%%%s%%", c.Query("title"))
+
+	movies, err := h.postgres.ListMovies(title, &params)
+	if err != nil {
+		handlePostgresError(c, h.logger, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, movies)
 }
