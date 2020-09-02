@@ -62,3 +62,26 @@ func (h *MovieHandlers) ListMovies(c *gin.Context) {
 
 	c.JSON(http.StatusOK, movies)
 }
+
+func (h *MovieHandlers) LikeMovie(c *gin.Context) {
+	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	account := models.AccountInfo{}
+	err = c.ShouldBindHeader(&account)
+	if err != nil {
+		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
+		return
+	}
+
+	err = h.postgres.LikeMovie(account.AccountId, movieId)
+	if err != nil {
+		handlePostgresError(c, h.logger, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, models.Response{})
+}

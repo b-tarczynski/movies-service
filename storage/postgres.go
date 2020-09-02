@@ -20,6 +20,7 @@ type Postgres struct {
 type Storage interface {
 	GetMovie(movie *models.Movie) error
 	ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error)
+	LikeMovie(userId int, movieId int) error
 
 	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
 	AddMovieComment(comment *models.Comment) error
@@ -78,6 +79,12 @@ func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams
 		Select()
 
 	return comments, err
+}
+
+func (p *Postgres) LikeMovie(userId int, movieId int) error {
+	_, err := p.db.ExecOne("INSERT INTO liked_movies (user_id, movie_id) values (?, ?)", userId, movieId)
+
+	return err
 }
 
 func (p *Postgres) AddMovieComment(comment *models.Comment) error {
