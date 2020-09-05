@@ -1,4 +1,4 @@
-GET http://localhost:8080/comments?movieId=1&offset=5
+GET http://localhost:8080/comments?movieId=1
 Accept: application/json
 
 ###
@@ -9,7 +9,8 @@ X-Account-Id: 1
 X-Account: bar
 
 {
-  "content": "test comment here"
+  "content": "test comment here",
+  "likes": 100
 }
 
 ###

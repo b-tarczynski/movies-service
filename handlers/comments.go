@@ -50,6 +50,29 @@ func (h *CommentHandlers) GetComments(c *gin.Context) {
 	c.JSON(http.StatusOK, comments)
 }
 
+func (h *CommentHandlers) LikeComment(c *gin.Context) {
+	account := models.AccountInfo{}
+	err := c.ShouldBindHeader(&account)
+	if err != nil {
+		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
+		return
+	}
+
+	commentId, err := strconv.Atoi(c.Query(commentId))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
+		return
+	}
+
+	err = h.storage.LikeComment(account.AccountId, commentId)
+	if err != nil {
+		handlePostgresError(c, h.logger, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, models.Response{})
+}
+
 func (h *CommentHandlers) AddComment(c *gin.Context) {
 	account := models.AccountInfo{}
 	err := c.ShouldBindHeader(&account)

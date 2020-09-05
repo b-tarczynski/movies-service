@@ -60,7 +60,7 @@ func NewApi(options ...func(api *Api)) *Api {
 		comments.POST("", ch.AddComment)
 		comments.PUT("/:commId", ch.UpdateComment)
 		comments.DELETE("/:commId", ch.DeleteComment)
-		comments.PUT("/:commId/upvote", ch.UpdateComment)
+		comments.PUT("/:commId/like", ch.UpdateComment)
 	}
 
 	return a
