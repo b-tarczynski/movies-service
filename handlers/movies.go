@@ -40,6 +40,7 @@ func (h *MovieHandlers) GetMovie(c *gin.Context) {
 		handlePostgresError(c, h.logger, err)
 		return
 	}
+	go h.AddRecentViewedMovie(c.Copy(), id)
 
 	c.JSON(http.StatusOK, movie)
 }
@@ -84,4 +85,17 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.Response{})
+}
+
+func (h *MovieHandlers) AddRecentViewedMovie(c *gin.Context, movieId int) {
+	account := models.AccountInfo{}
+	err := c.ShouldBindHeader(&account)
+	if err != nil {
+		return
+	}
+
+	err = h.postgres.AddRecentViewedMovie(account.AccountId, movieId)
+	if err != nil {
+		h.logger.Printf("addRecentViewedMovie: %s", err)
+	}
 }
