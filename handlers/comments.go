@@ -43,7 +43,7 @@ func (h *CommentHandlers) GetComments(c *gin.Context) {
 
 	comments, err := h.storage.GetMovieComments(id, &params)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, commentResource)
 		return
 	}
 
@@ -58,15 +58,25 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 		return
 	}
 
-	commentId, err := strconv.Atoi(c.Query(commentId))
+	commentId, err := strconv.Atoi(c.Param(commentId))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidCommentIdParamErr})
 		return
 	}
 
-	err = h.storage.LikeComment(account.AccountId, commentId)
+	liked, err := strconv.ParseBool(c.Query(likedParam))
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidLikedParamErr})
+		return
+	}
+
+	if liked {
+		err = h.storage.RemoveCommentLike(account.AccountId, commentId)
+	} else {
+		err = h.storage.LikeComment(account.AccountId, commentId)
+	}
+	if err != nil {
+		handlePostgresError(c, h.logger, err, commentResource)
 		return
 	}
 
@@ -102,7 +112,7 @@ func (h *CommentHandlers) AddComment(c *gin.Context) {
 
 	err = h.storage.AddMovieComment(&comment)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, commentResource)
 		return
 	}
 
@@ -136,7 +146,7 @@ func (h *CommentHandlers) UpdateComment(c *gin.Context) {
 
 	err = h.storage.UpdateComment(&comment)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, commentResource)
 		return
 	}
 
@@ -163,7 +173,7 @@ func (h *CommentHandlers) DeleteComment(c *gin.Context) {
 
 	err = h.storage.DeleteComment(&comment)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, commentResource)
 		return
 	}
 

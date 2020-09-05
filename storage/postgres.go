@@ -21,10 +21,12 @@ type Storage interface {
 	GetMovie(movie *models.Movie) error
 	ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error)
 	LikeMovie(userId int, movieId int) error
+	RemoveMovieLike(userId int, movieId int) error
 	AddRecentViewedMovie(userId int, movieId int) error
 
 	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
 	LikeComment(userId int, commentId int) error
+	RemoveCommentLike(userId int, commentId int) error
 	AddMovieComment(comment *models.Comment) error
 	UpdateComment(comment *models.Comment) error
 	DeleteComment(comment *models.Comment) error

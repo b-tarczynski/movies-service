@@ -26,6 +26,13 @@ X-Account: bar
 
 ###
 
+POST http://localhost:8080/comments/7/like?liked=true
+Content-Type: application/json
+X-Account-Id: 1
+X-Account: bar
+
+###
+
 DELETE http://localhost:8080/comments/3
 Content-Type: application/json
 X-Account-Id: 1

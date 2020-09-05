@@ -20,7 +20,13 @@ func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams
 }
 
 func (p *Postgres) LikeComment(userId int, commentId int) error {
-	_, err := p.db.ExecOne("INSERT INTO liked_comments (user_id, comment_id) values (?, ?)", userId, commentId)
+	_, err := p.db.ExecOne("INSERT INTO liked_comments (user_id, comment_id) VALUES (?, ?)", userId, commentId)
+
+	return err
+}
+
+func (p *Postgres) RemoveCommentLike(userId int, commentId int) error {
+	_, err := p.db.ExecOne("DELETE FROM liked_comments WHERE user_id=? AND comment_id=?", userId, commentId)
 
 	return err
 }

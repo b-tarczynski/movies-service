@@ -37,7 +37,7 @@ func (h *MovieHandlers) GetMovie(c *gin.Context) {
 	movie := &models.Movie{Id: id}
 	err = h.postgres.GetMovie(movie)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, movieResource)
 		return
 	}
 	go h.AddRecentViewedMovie(c.Copy(), id)
@@ -57,7 +57,7 @@ func (h *MovieHandlers) ListMovies(c *gin.Context) {
 
 	movies, err := h.postgres.ListMovies(title, &params)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, movieResource)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 
 	err = h.postgres.LikeMovie(account.AccountId, movieId)
 	if err != nil {
-		handlePostgresError(c, h.logger, err)
+		handlePostgresError(c, h.logger, err, movieResource)
 		return
 	}
 
