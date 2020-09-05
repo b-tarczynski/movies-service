@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/models"
@@ -11,6 +10,7 @@ import (
 
 const (
 	all = "*"
+	genres = "Genres"
 )
 
 type Postgres struct {
@@ -19,7 +19,7 @@ type Postgres struct {
 
 type Storage interface {
 	GetMovie(movie *models.Movie) error
-	ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error)
+	ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error)
 	LikeMovie(userId int, movieId int) error
 
 	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
@@ -47,7 +47,7 @@ func NewPostgres(config *config.Postgres) (Storage, error) {
 func (p *Postgres) GetMovie(movie *models.Movie) error {
 	err := p.db.Model(movie).
 		WherePK().
-		Relation("Genres").
+		Relation(genres).
 		Relation("Countries").
 		Relation("Companies").
 		Relation("Languages").
@@ -56,11 +56,11 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 	return err
 }
 
-func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error) {
-	movies := make([]models.MoviePreview, 0)
-	fmt.Println(title)
+func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error) {
+	movies := make([]models.Movie, 0)
 	err := p.db.Model(&movies).
 		Where("title like ?", title).
+		Relation(genres).
 		Order(params.OrderBy).
 		Offset(params.Offset).
 		Limit(params.Limit).

@@ -54,11 +54,11 @@ func (s *Storage) DeleteComment(comment *models.Comment) error {
 	return nil
 }
 
-func (s *Storage) ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error) {
+func (s *Storage) ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error) {
 	if s.ListMoviesErr {
 		return nil, exampleErr
 	}
-	return []models.MoviePreview{}, nil
+	return []models.Movie{}, nil
 }
 
 func (s *Storage) LikeMovie(userId int, movieId int) error {
