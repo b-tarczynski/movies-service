@@ -5,6 +5,7 @@ import (
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/handlers"
+	"github.com/BarTar213/movies-service/middleware"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/gin-gonic/gin"
 )
@@ -47,20 +48,32 @@ func NewApi(options ...func(api *Api)) *Api {
 	mh := handlers.NewMovieHandlers(a.Storage, a.Logger)
 	ch := handlers.NewCommentHandlers(a.Storage, a.Logger)
 
+	a.Router.Use(gin.Recovery())
+
 	movies := a.Router.Group("/movies")
 	{
 		movies.GET("", mh.ListMovies)
 		movies.GET("/:movieId", mh.GetMovie)
-		movies.POST("/:movieId/like", mh.LikeMovie)
+
+		authorized := movies.Group("")
+		authorized.Use(middleware.CheckAccount())
+		{
+			movies.POST("/:movieId/like", mh.LikeMovie)
+		}
 	}
 
 	comments := a.Router.Group("/comments")
 	{
 		comments.GET("", ch.GetComments)
-		comments.POST("", ch.AddComment)
-		comments.PUT("/:commId", ch.UpdateComment)
-		comments.DELETE("/:commId", ch.DeleteComment)
-		comments.POST("/:commId/like", ch.LikeComment)
+
+		authorized := comments.Group("")
+		authorized.Use(middleware.CheckAccount())
+		{
+			authorized.POST("", ch.AddComment)
+			authorized.POST("/:commId/like", ch.LikeComment)
+			authorized.PUT("/:commId", ch.UpdateComment)
+			authorized.DELETE("/:commId", ch.DeleteComment)
+		}
 	}
 
 	return a

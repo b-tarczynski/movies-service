@@ -9,13 +9,12 @@ X-Account-Id: 1
 X-Account: bar
 
 {
-  "content": "test comment here",
-  "likes": 100
+  "content": "test comment here"
 }
 
 ###
 
-PUT http://localhost:8080/comments/10
+PUT http://localhost:8080/comments/17
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
@@ -26,14 +25,14 @@ X-Account: bar
 
 ###
 
-POST http://localhost:8080/comments/7/like?liked=true
+POST http://localhost:8080/comments/17/like?liked=false
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
 
 ###
 
-DELETE http://localhost:8080/comments/3
+DELETE http://localhost:8080/comments/17
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar

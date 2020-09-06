@@ -8,6 +8,7 @@ import (
 
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,12 +52,7 @@ func (h *CommentHandlers) GetComments(c *gin.Context) {
 }
 
 func (h *CommentHandlers) LikeComment(c *gin.Context) {
-	account := models.AccountInfo{}
-	err := c.ShouldBindHeader(&account)
-	if err != nil {
-		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
-		return
-	}
+	account := utils.GetAccount(c)
 
 	commentId, err := strconv.Atoi(c.Param(commentId))
 	if err != nil {
@@ -84,12 +80,7 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 }
 
 func (h *CommentHandlers) AddComment(c *gin.Context) {
-	account := models.AccountInfo{}
-	err := c.ShouldBindHeader(&account)
-	if err != nil {
-		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
-		return
-	}
+	account := utils.GetAccount(c)
 
 	movieId, err := strconv.Atoi(c.Query(movieIdKey))
 	if err != nil {
@@ -120,12 +111,7 @@ func (h *CommentHandlers) AddComment(c *gin.Context) {
 }
 
 func (h *CommentHandlers) UpdateComment(c *gin.Context) {
-	account := models.AccountInfo{}
-	err := c.ShouldBindHeader(&account)
-	if err != nil {
-		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
-		return
-	}
+	account := utils.GetAccount(c)
 
 	commentId, err := strconv.Atoi(c.Param(commentId))
 	if err != nil {
@@ -154,12 +140,7 @@ func (h *CommentHandlers) UpdateComment(c *gin.Context) {
 }
 
 func (h *CommentHandlers) DeleteComment(c *gin.Context) {
-	account := models.AccountInfo{}
-	err := c.ShouldBindHeader(&account)
-	if err != nil {
-		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
-		return
-	}
+	account := utils.GetAccount(c)
 
 	commentId, err := strconv.Atoi(c.Param(commentId))
 	if err != nil {

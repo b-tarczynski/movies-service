@@ -8,6 +8,7 @@ import (
 
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -71,12 +72,7 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 		return
 	}
 
-	account := models.AccountInfo{}
-	err = c.ShouldBindHeader(&account)
-	if err != nil {
-		c.JSON(http.StatusForbidden, models.Response{Error: invalidHeadersErr})
-		return
-	}
+	account := utils.GetAccount(c)
 
 	err = h.postgres.LikeMovie(account.AccountId, movieId)
 	if err != nil {
