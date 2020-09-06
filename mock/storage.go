@@ -9,14 +9,18 @@ import (
 var exampleErr = errors.New("example error")
 
 type Storage struct {
-	GetMovieErr   bool
-	ListMoviesErr bool
-	LikeMovieErr  bool
+	GetMovieErr             bool
+	ListMoviesErr           bool
+	LikeMovieErr            bool
+	DeleteMovieLikeErr      bool
+	AddRecentViewedMovieErr bool
 
-	GetMovieCommentsErr bool
-	AddMovieCommentErr  bool
-	UpdateCommentErr    bool
-	DeleteCommentErr    bool
+	GetMovieCommentsErr  bool
+	AddMovieCommentErr   bool
+	UpdateCommentErr     bool
+	LikeCommentErr       bool
+	DeleteCommentLikeErr bool
+	DeleteCommentErr     bool
 }
 
 func (s *Storage) GetMovie(movie *models.Movie) error {
@@ -63,6 +67,34 @@ func (s *Storage) ListMovies(title string, params *models.PaginationParams) ([]m
 
 func (s *Storage) LikeMovie(userId int, movieId int) error {
 	if s.LikeMovieErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) DeleteMovieLike(userId int, movieId int) error {
+	if s.DeleteMovieLikeErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) AddRecentViewedMovie(userId int, movieId int) error {
+	if s.AddRecentViewedMovieErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) LikeComment(userId int, commentId int) error {
+	if s.LikeCommentErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) DeleteCommentLike(userId int, commentId int) error {
+	if s.DeleteCommentLikeErr {
 		return exampleErr
 	}
 	return nil

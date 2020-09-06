@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/BarTar213/movies-service/config"
-	"github.com/BarTar213/movies-service/handlers"
 	"github.com/BarTar213/movies-service/middleware"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/gin-gonic/gin"
@@ -45,20 +44,20 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
-	mh := handlers.NewMovieHandlers(a.Storage, a.Logger)
-	ch := handlers.NewCommentHandlers(a.Storage, a.Logger)
+	mh := NewMovieHandlers(a.Storage, a.Logger)
+	ch := NewCommentHandlers(a.Storage, a.Logger)
 
 	a.Router.Use(gin.Recovery())
 
 	movies := a.Router.Group("/movies")
 	{
 		movies.GET("", mh.ListMovies)
-		movies.GET("/:movieId", mh.GetMovie)
+		movies.GET("/:commentId", mh.GetMovie)
 
 		authorized := movies.Group("")
 		authorized.Use(middleware.CheckAccount())
 		{
-			movies.POST("/:movieId/like", mh.LikeMovie)
+			authorized.POST("/:commentId/like", mh.LikeMovie)
 		}
 	}
 

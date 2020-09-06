@@ -14,6 +14,7 @@ type Config struct {
 
 type Api struct {
 	Port string
+	Release bool
 }
 
 type Postgres struct {

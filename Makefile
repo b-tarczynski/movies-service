@@ -1,4 +1,4 @@
-.PHONY: install test binary cover cover-total
+.PHONY: install test binary cover cover-html cover-total
 
 binary:
 	@go build -o movies-service ./cmd/movies-service
@@ -11,6 +11,10 @@ test:
 
 cover:
 	@go test -coverprofile=cover.out ./...
+
+cover-html:
+	@go test -coverprofile=cover.out ./...
+	@go tool cover -html=cover.out
 
 cover-total:
 	@go test -coverprofile=cover.out ./...

@@ -33,7 +33,7 @@ func (p *Postgres) LikeMovie(userId int, movieId int) error {
 	return err
 }
 
-func (p *Postgres) RemoveMovieLike(userId int, movieId int) error{
+func (p *Postgres) DeleteMovieLike(userId int, movieId int) error{
 	_, err := p.db.ExecOne("DELETE FROM liked_movies WHERE user_id=? AND movie_id=?)", userId, movieId)
 
 	return err

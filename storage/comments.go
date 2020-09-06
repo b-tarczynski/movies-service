@@ -25,7 +25,7 @@ func (p *Postgres) LikeComment(userId int, commentId int) error {
 	return err
 }
 
-func (p *Postgres) RemoveCommentLike(userId int, commentId int) error {
+func (p *Postgres) DeleteCommentLike(userId int, commentId int) error {
 	_, err := p.db.ExecOne("DELETE FROM liked_comments WHERE user_id=? AND comment_id=?", userId, commentId)
 
 	return err

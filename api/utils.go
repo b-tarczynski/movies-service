@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
 	"fmt"
@@ -11,15 +11,15 @@ import (
 )
 
 const (
-	invalidHeadersErr            = "invalid account headers"
 	invalidRequestBodyErr        = "invalid request body"
-	invalidMovieIdParamErr       = "invalid param - movieId"
+	invalidMovieIdParamErr       = "invalid param - commentId"
 	invalidCommentIdParamErr     = "invalid param - commentId"
 	invalidLikedParamErr         = "invalid param - liked"
 	invalidPaginationQueryParams = "invalid pagination query params"
 
-	likedParam = "liked"
-	movieResource = "movie"
+	likedParam      = "liked"
+	movieIdQuery    = "movie_id"
+	movieResource   = "movie"
 	commentResource = "comment"
 )
 

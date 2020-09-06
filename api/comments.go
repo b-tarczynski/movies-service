@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
 	"log"
@@ -29,7 +29,7 @@ func NewCommentHandlers(storage storage.Storage, logger *log.Logger) *CommentHan
 }
 
 func (h *CommentHandlers) GetComments(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query(movieIdKey))
+	id, err := strconv.Atoi(c.Query(movieIdQuery))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
 		return
@@ -67,7 +67,7 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 	}
 
 	if liked {
-		err = h.storage.RemoveCommentLike(account.AccountId, commentId)
+		err = h.storage.DeleteCommentLike(account.AccountId, commentId)
 	} else {
 		err = h.storage.LikeComment(account.AccountId, commentId)
 	}
@@ -82,7 +82,7 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 func (h *CommentHandlers) AddComment(c *gin.Context) {
 	account := utils.GetAccount(c)
 
-	movieId, err := strconv.Atoi(c.Query(movieIdKey))
+	movieId, err := strconv.Atoi(c.Query(movieIdQuery))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
 		return

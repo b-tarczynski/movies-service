@@ -9,6 +9,7 @@ import (
 	"github.com/BarTar213/movies-service/api"
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -16,6 +17,10 @@ func main() {
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	logger.Printf("%+v\n", conf)
+
+	if conf.Api.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	postgres, err := storage.NewPostgres(&conf.Postgres)
 	if err != nil {

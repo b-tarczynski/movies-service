@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
 	"fmt"
@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	movieIdKey = "movieId"
+	movieIdKey = "commentId"
 )
 
 type MovieHandlers struct {
-	postgres storage.Storage
-	logger   *log.Logger
+	storage storage.Storage
+	logger  *log.Logger
 }
 
 func NewMovieHandlers(postgres storage.Storage, logger *log.Logger) *MovieHandlers {
 	return &MovieHandlers{
-		postgres: postgres,
-		logger:   logger,
+		storage: postgres,
+		logger:  logger,
 	}
 }
 
@@ -36,7 +36,7 @@ func (h *MovieHandlers) GetMovie(c *gin.Context) {
 	}
 
 	movie := &models.Movie{Id: id}
-	err = h.postgres.GetMovie(movie)
+	err = h.storage.GetMovie(movie)
 	if err != nil {
 		handlePostgresError(c, h.logger, err, movieResource)
 		return
@@ -56,7 +56,7 @@ func (h *MovieHandlers) ListMovies(c *gin.Context) {
 
 	title := fmt.Sprintf("%%%s%%", c.Query("title"))
 
-	movies, err := h.postgres.ListMovies(title, &params)
+	movies, err := h.storage.ListMovies(title, &params)
 	if err != nil {
 		handlePostgresError(c, h.logger, err, movieResource)
 		return
@@ -74,7 +74,17 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 
 	account := utils.GetAccount(c)
 
-	err = h.postgres.LikeMovie(account.AccountId, movieId)
+	liked, err := strconv.ParseBool(c.Query(likedParam))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidLikedParamErr})
+		return
+	}
+
+	if liked {
+		err = h.storage.DeleteMovieLike(account.AccountId, movieId)
+	} else {
+		err = h.storage.LikeMovie(account.AccountId, movieId)
+	}
 	if err != nil {
 		handlePostgresError(c, h.logger, err, movieResource)
 		return
@@ -90,7 +100,7 @@ func (h *MovieHandlers) AddRecentViewedMovie(c *gin.Context, movieId int) {
 		return
 	}
 
-	err = h.postgres.AddRecentViewedMovie(account.AccountId, movieId)
+	err = h.storage.AddRecentViewedMovie(account.AccountId, movieId)
 	if err != nil {
 		h.logger.Printf("addRecentViewedMovie: %s", err)
 	}
