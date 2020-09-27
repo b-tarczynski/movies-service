@@ -5,10 +5,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/BarTar213/movies-service/api"
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/tmdb"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,11 +28,13 @@ func main() {
 	if err != nil {
 		logger.Fatalln(err)
 	}
+	tmdbClient := tmdb.NewClient(5*time.Second, conf)
 
 	a := api.NewApi(
 		api.WithConfig(conf),
 		api.WithLogger(logger),
 		api.WithStorage(postgres),
+		api.WithTmdbClient(tmdbClient),
 	)
 
 	go a.Run()

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/models"
@@ -30,14 +31,18 @@ type Storage interface {
 	AddMovieComment(comment *models.Comment) error
 	UpdateComment(comment *models.Comment) error
 	DeleteComment(comment *models.Comment) error
+
+	GetCredits(movieId int, credit *models.Credit) error
+	AddCredits(credit *models.Credit) error
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {
 	db := pg.Connect(&pg.Options{
-		Addr:     config.Address,
-		User:     config.User,
-		Password: config.Password,
-		Database: config.Database,
+		Addr:        config.Address,
+		User:        config.User,
+		Password:    config.Password,
+		Database:    config.Database,
+		DialTimeout: 5 * time.Second,
 	})
 
 	err := db.Ping(context.Background())

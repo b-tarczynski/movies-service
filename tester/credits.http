@@ -1,0 +1,4 @@
+GET http://localhost:8080/movies/337401/credits
+Accept: application/json
+
+###

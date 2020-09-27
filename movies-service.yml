@@ -5,6 +5,9 @@ postgres:
   user: "postgres"
   password: "admin"
   database: "vimo"
+tmdb:
+  url: "https://api.themoviedb.org/3"
+  key: ""
 headers:
   account: "X-Account"
   id: "X-Account-Id"

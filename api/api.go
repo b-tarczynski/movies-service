@@ -6,15 +6,17 @@ import (
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/middleware"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/tmdb"
 	"github.com/gin-gonic/gin"
 )
 
 type Api struct {
-	Port    string
-	Router  *gin.Engine
-	Config  *config.Config
-	Logger  *log.Logger
-	Storage storage.Storage
+	Port       string
+	Router     *gin.Engine
+	Config     *config.Config
+	Logger     *log.Logger
+	Storage    storage.Storage
+	TmdbClient tmdb.Client
 }
 
 func WithConfig(conf *config.Config) func(a *Api) {
@@ -35,6 +37,12 @@ func WithStorage(storage storage.Storage) func(a *Api) {
 	}
 }
 
+func WithTmdbClient(tmdb tmdb.Client) func(a *Api) {
+	return func(a *Api) {
+		a.TmdbClient = tmdb
+	}
+}
+
 func NewApi(options ...func(api *Api)) *Api {
 	a := &Api{
 		Router: gin.Default(),
@@ -44,7 +52,7 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
-	mh := NewMovieHandlers(a.Storage, a.Logger)
+	mh := NewMovieHandlers(a.Storage, a.TmdbClient, a.Logger)
 	ch := NewCommentHandlers(a.Storage, a.Logger)
 
 	a.Router.Use(gin.Recovery())
@@ -52,12 +60,13 @@ func NewApi(options ...func(api *Api)) *Api {
 	movies := a.Router.Group("/movies")
 	{
 		movies.GET("", mh.ListMovies)
-		movies.GET("/:commentId", mh.GetMovie)
+		movies.GET("/:movieId", mh.GetMovie)
+		movies.GET("/:movieId/credits", mh.GetCredits)
 
 		authorized := movies.Group("")
 		authorized.Use(middleware.CheckAccount())
 		{
-			authorized.POST("/:commentId/like", mh.LikeMovie)
+			authorized.POST("/:movieId/like", mh.LikeMovie)
 		}
 	}
 

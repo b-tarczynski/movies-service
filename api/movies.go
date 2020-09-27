@@ -8,22 +8,25 @@ import (
 
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/tmdb"
 	"github.com/BarTar213/movies-service/utils"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	movieIdKey = "commentId"
+	movieIdKey = "movieId"
 )
 
 type MovieHandlers struct {
 	storage storage.Storage
+	tmdb    tmdb.Client
 	logger  *log.Logger
 }
 
-func NewMovieHandlers(postgres storage.Storage, logger *log.Logger) *MovieHandlers {
+func NewMovieHandlers(postgres storage.Storage, tmdb tmdb.Client, logger *log.Logger) *MovieHandlers {
 	return &MovieHandlers{
 		storage: postgres,
+		tmdb:    tmdb,
 		logger:  logger,
 	}
 }

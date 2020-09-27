@@ -10,10 +10,11 @@ type Config struct {
 	Api      Api
 	Postgres Postgres
 	Headers  Headers
+	Tmdb     Tmdb
 }
 
 type Api struct {
-	Port string
+	Port    string
 	Release bool
 }
 
@@ -22,6 +23,11 @@ type Postgres struct {
 	User     string
 	Password string
 	Database string
+}
+
+type Tmdb struct {
+	Url string
+	Key string
 }
 
 type Headers struct {

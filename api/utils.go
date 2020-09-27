@@ -21,6 +21,7 @@ const (
 	movieIdQuery    = "movie_id"
 	movieResource   = "movie"
 	commentResource = "comment"
+	creditsResource = "credits"
 )
 
 func handlePostgresError(c *gin.Context, l *log.Logger, err error, resource string) {
@@ -46,4 +47,20 @@ func handlePostgresError(c *gin.Context, l *log.Logger, err error, resource stri
 	}
 
 	c.JSON(http.StatusInternalServerError, models.Response{Error: "storage error"})
+}
+
+func handleTMDBError(c *gin.Context, l *log.Logger, status int, err error, resource string) {
+	if err != nil {
+		l.Println(err)
+		c.JSON(http.StatusInternalServerError, models.Response{Error: "api error"})
+		return
+	}
+
+	switch status {
+	case http.StatusNotFound:
+		c.JSON(http.StatusNotFound, models.Response{Error: fmt.Sprintf("%s with given information already exists", resource)})
+		return
+	}
+
+	c.JSON(http.StatusInternalServerError, models.Response{Error: "api error"})
 }
