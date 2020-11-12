@@ -11,17 +11,21 @@ import (
 
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/mock"
+	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
+	"github.com/BarTar213/movies-service/tmdb"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	accountHeaderId = "X-Account-Id"
-	accountHeader   = "X-Account"
+	accountHeaderId    = "X-Account-Id"
+	accountHeaderLogin = "X-Account"
+	accountHeaderRole  = "X-Role"
 
-	validId     = "2"
-	invalidId   = "2ab"
-	accountName = "account"
+	validId      = "2"
+	invalidId    = "2ab"
+	accountLogin = "login"
+	accountRole  = "role"
 )
 
 var logger = log.New(os.Stdout, "", log.LstdFlags)
@@ -29,6 +33,7 @@ var logger = log.New(os.Stdout, "", log.LstdFlags)
 func TestNewMovieHandlers(t *testing.T) {
 	type args struct {
 		postgres storage.Storage
+		tmdb     tmdb.Client
 		logger   *log.Logger
 	}
 	tests := []struct {
@@ -50,7 +55,7 @@ func TestNewMovieHandlers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewMovieHandlers(tt.args.postgres, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
+			if got := NewMovieHandlers(tt.args.postgres, tt.args.tmdb, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewMovieHandlers() = %v, want %v", got, tt.want)
 			}
 		})
@@ -64,10 +69,9 @@ func TestMovieHandlers_AddRecentViewedMovie(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		accountId   int
-		accountName string
+		name    string
+		fields  fields
+		account *models.AccountInfo
 	}{
 		// TODO: Add test cases.
 	}
@@ -80,7 +84,7 @@ func TestMovieHandlers_AddRecentViewedMovie(t *testing.T) {
 			)
 			w := httptest.NewRecorder()
 			req, _ := http.NewRequest(http.MethodGet, "/movies", nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 		})
@@ -94,12 +98,11 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		accountId   int
-		accountName string
-		movieId     string
-		wantStatus  int
+		name       string
+		fields     fields
+		account    *models.AccountInfo
+		movieId    string
+		wantStatus int
 	}{
 		{
 			name: "positive_get_movie",
@@ -108,10 +111,13 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_get_movie_without_account_info",
@@ -132,10 +138,13 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "negative_get_movie_invalid_movie_id",
@@ -144,10 +153,13 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     invalidId,
-			wantStatus:  http.StatusBadRequest,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    invalidId,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_get_movie_storage_error",
@@ -158,10 +170,13 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			wantStatus:  http.StatusInternalServerError,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -176,7 +191,7 @@ func TestMovieHandlers_GetMovie(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/movies/%s", tt.movieId)
 			req, _ := http.NewRequest(http.MethodGet, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -191,13 +206,12 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		accountId   int
-		accountName string
-		movieId     string
-		liked       interface{}
-		wantStatus  int
+		name       string
+		fields     fields
+		account    *models.AccountInfo
+		movieId    string
+		liked      interface{}
+		wantStatus int
 	}{
 		{
 			name: "positive_like_movie",
@@ -206,11 +220,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			liked:       false,
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			liked:      false,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_delete_like_movie",
@@ -219,11 +236,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			liked:       true,
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			liked:      true,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "negative_like_movie_invalid_movie_id",
@@ -232,11 +252,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     invalidId,
-			liked:       false,
-			wantStatus:  http.StatusBadRequest,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    invalidId,
+			liked:      false,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_like_movie_invalid_liked_param_err",
@@ -245,11 +268,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			liked:       "notBool",
-			wantStatus:  http.StatusBadRequest,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			liked:      "notBool",
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_like_movie_storage_error",
@@ -260,11 +286,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			liked:       false,
-			wantStatus:  http.StatusInternalServerError,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			liked:      false,
+			wantStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "negative_delete_like_movie_storage_error",
@@ -275,11 +304,14 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			movieId:     validId,
-			liked:       true,
-			wantStatus:  http.StatusInternalServerError,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			movieId:    validId,
+			liked:      true,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -294,7 +326,7 @@ func TestMovieHandlers_LikeMovie(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/movies/%s/like?liked=%v", tt.movieId, tt.liked)
 			req, _ := http.NewRequest(http.MethodPost, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -309,12 +341,11 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		accountId   int
-		accountName string
+		name       string
+		fields     fields
+		account    *models.AccountInfo
 		query      string
-		wantStatus  int
+		wantStatus int
 	}{
 		{
 			name: "positive_list_movies",
@@ -323,9 +354,12 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_list_movies_without_account_info",
@@ -340,13 +374,16 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 			name: "positive_list_movies_not_default_params",
 			fields: fields{
 				storage: &mock.Storage{},
-				conf:   &config.Config{},
-				logger: logger,
+				conf:    &config.Config{},
+				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			query: "?offset=10&title=mad&order_by=popularity",
-			wantStatus:  http.StatusOK,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			query:      "?offset=10&title=mad&order_by=popularity",
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "negative_list_movies_storage_error",
@@ -357,21 +394,27 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			wantStatus:  http.StatusInternalServerError,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			wantStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "negative_list_movies_invalid_params_error",
 			fields: fields{
 				storage: &mock.Storage{},
-				conf:   &config.Config{},
-				logger: logger,
+				conf:    &config.Config{},
+				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
-			query: "?offset=invalidOffset",
-			wantStatus:  http.StatusBadRequest,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
+			query:      "?offset=invalidOffset",
+			wantStatus: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {
@@ -386,7 +429,7 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/movies%s", tt.query)
 			req, _ := http.NewRequest(http.MethodGet, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -394,9 +437,14 @@ func TestMovieHandlers_ListMovies(t *testing.T) {
 	}
 }
 
-func setAccountHeaders(r *http.Request, accountId int, accountName string) {
-	r.Header.Set(accountHeaderId, fmt.Sprintf("%d", accountId))
-	r.Header.Set(accountHeader, accountName)
+func setAccountHeaders(r *http.Request, account *models.AccountInfo) {
+	if account == nil {
+		return
+	}
+
+	r.Header.Set(accountHeaderId, fmt.Sprintf("%d", account.ID))
+	r.Header.Set(accountHeaderLogin, account.Login)
+	r.Header.Set(accountHeaderRole, account.Role)
 }
 
 func checkResponseStatusCode(t *testing.T, want int, got int) {

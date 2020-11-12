@@ -67,9 +67,9 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 	}
 
 	if liked {
-		err = h.storage.DeleteCommentLike(account.AccountId, commentId)
+		err = h.storage.DeleteCommentLike(account.ID, commentId)
 	} else {
-		err = h.storage.LikeComment(account.AccountId, commentId)
+		err = h.storage.LikeComment(account.ID, commentId)
 	}
 	if err != nil {
 		handlePostgresError(c, h.logger, err, commentResource)
@@ -99,7 +99,7 @@ func (h *CommentHandlers) AddComment(c *gin.Context) {
 	comment.UpdateDate = now
 	comment.CreateDate = now
 	comment.MovieId = movieId
-	comment.UserId = account.AccountId
+	comment.UserId = account.ID
 
 	err = h.storage.AddMovieComment(&comment)
 	if err != nil {
@@ -127,7 +127,7 @@ func (h *CommentHandlers) UpdateComment(c *gin.Context) {
 	}
 
 	comment.Id = commentId
-	comment.UserId = account.AccountId
+	comment.UserId = account.ID
 	comment.UpdateDate = time.Now()
 
 	err = h.storage.UpdateComment(&comment)
@@ -150,7 +150,7 @@ func (h *CommentHandlers) DeleteComment(c *gin.Context) {
 
 	comment := models.Comment{}
 	comment.Id = commentId
-	comment.UserId = account.AccountId
+	comment.UserId = account.ID
 
 	err = h.storage.DeleteComment(&comment)
 	if err != nil {

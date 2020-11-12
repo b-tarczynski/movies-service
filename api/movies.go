@@ -84,9 +84,9 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 	}
 
 	if liked {
-		err = h.storage.DeleteMovieLike(account.AccountId, movieId)
+		err = h.storage.DeleteMovieLike(account.ID, movieId)
 	} else {
-		err = h.storage.LikeMovie(account.AccountId, movieId)
+		err = h.storage.LikeMovie(account.ID, movieId)
 	}
 	if err != nil {
 		handlePostgresError(c, h.logger, err, movieResource)
@@ -103,7 +103,7 @@ func (h *MovieHandlers) AddRecentViewedMovie(c *gin.Context, movieId int) {
 		return
 	}
 
-	err = h.storage.AddRecentViewedMovie(account.AccountId, movieId)
+	err = h.storage.AddRecentViewedMovie(account.ID, movieId)
 	if err != nil {
 		h.logger.Printf("addRecentViewedMovie: %s", err)
 	}

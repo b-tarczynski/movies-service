@@ -9,7 +9,6 @@ import (
 type Config struct {
 	Api      Api
 	Postgres Postgres
-	Headers  Headers
 	Tmdb     Tmdb
 }
 
@@ -28,11 +27,6 @@ type Postgres struct {
 type Tmdb struct {
 	Url string
 	Key string
-}
-
-type Headers struct {
-	Account string
-	Id      string
 }
 
 func NewConfig(fileName string) *Config {

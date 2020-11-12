@@ -7,7 +7,4 @@ postgres:
   database: "vimo"
 tmdb:
   url: "https://api.themoviedb.org/3"
-  key: ""
-headers:
-  account: "X-Account"
-  id: "X-Account-Id"
+  key: "key"

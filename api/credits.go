@@ -37,7 +37,7 @@ func (h *MovieHandlers) GetCredits(c *gin.Context) {
 	c.JSON(http.StatusOK, credits)
 }
 
-func (h *MovieHandlers) AddCredits(credits *models.Credit) {
+func (h *MovieHandlers) AddCredits(credits *models.Credit) error {
 	for i := 0; i < len(credits.Crew); i++ {
 		credits.Crew[i].CreditId = credits.Id
 	}
@@ -49,5 +49,8 @@ func (h *MovieHandlers) AddCredits(credits *models.Credit) {
 	if err != nil {
 		err := errors.WithMessage(err, "AddCredits")
 		h.logger.Print(err)
+		return err
 	}
+
+	return nil
 }

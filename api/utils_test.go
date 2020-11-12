@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -70,6 +71,60 @@ func Test_handlePostgresError(t *testing.T) {
 
 			handlePostgresError(context, tt.args.logger, tt.args.err, tt.args.resource)
 
+			checkResponseStatusCode(t, tt.wantStatus, w.Code)
+		})
+	}
+}
+
+func Test_handleTMDBError(t *testing.T) {
+	type args struct {
+		logger   *log.Logger
+		status   int
+		err      error
+		resource string
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantStatus int
+	}{
+		{
+			name: "negative_handle_tmdb_error_internal_server_error",
+			args: args{
+				logger:   logger,
+				status:   http.StatusInternalServerError,
+				err:      errors.New("TMDB error"),
+				resource: creditsResource,
+			},
+			wantStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "negative_handle_tmdb_status_not_found",
+			args: args{
+				logger:   logger,
+				status:   http.StatusNotFound,
+				err:      nil,
+				resource: creditsResource,
+			},
+			wantStatus: http.StatusNotFound,
+		},
+		{
+			name: "negative_handle_tmdb_internal_server_error",
+			args: args{
+				logger:   logger,
+				status:   http.StatusInternalServerError,
+				err:      nil,
+				resource: creditsResource,
+			},
+			wantStatus: http.StatusInternalServerError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			context, _ := gin.CreateTestContext(w)
+
+			handleTMDBError(context, tt.args.logger, tt.args.status, tt.args.err, tt.args.resource)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
 		})
 	}

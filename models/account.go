@@ -1,6 +1,7 @@
 package models
 
 type AccountInfo struct {
-	AccountId int    `header:"X-Account-Id" binding:"required"`
-	Account   string `header:"X-Account" binding:"required"`
+	ID    int    `header:"X-Account-Id" binding:"required"`
+	Login string `header:"X-Account" binding:"required"`
+	Role  string `header:"X-Role" binding:"required"`
 }

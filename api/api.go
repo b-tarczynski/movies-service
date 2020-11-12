@@ -14,9 +14,9 @@ type Api struct {
 	Port       string
 	Router     *gin.Engine
 	Config     *config.Config
-	Logger     *log.Logger
 	Storage    storage.Storage
 	TmdbClient tmdb.Client
+	Logger     *log.Logger
 }
 
 func WithConfig(conf *config.Config) func(a *Api) {

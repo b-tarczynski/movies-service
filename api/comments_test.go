@@ -25,7 +25,6 @@ func TestNewCommentHandlers(t *testing.T) {
 	type args struct {
 		storage storage.Storage
 		logger  *log.Logger
-		headers *config.Headers
 	}
 	tests := []struct {
 		name string
@@ -62,8 +61,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		accountId   int
-		accountName string
+		account     *models.AccountInfo
 		movieId     string
 		body        interface{}
 		wantStatus  int
@@ -75,8 +73,11 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     validId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -90,8 +91,11 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     invalidId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -107,8 +111,11 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     validId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -122,8 +129,11 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     validId,
 			body: map[string]interface{}{
 				"content": 12,
@@ -145,7 +155,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/comments?movie_id=%s", tt.movieId)
 			req, _ := http.NewRequest(http.MethodPost, reqUrl, bytes.NewBuffer(jsonBody))
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -160,12 +170,11 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		accountId   int
-		accountName string
-		commentId   string
-		wantStatus  int
+		name       string
+		fields     fields
+		account    *models.AccountInfo
+		commentId  string
+		wantStatus int
 	}{
 		{
 			name: "positive_delete_comment",
@@ -174,8 +183,11 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			wantStatus:  http.StatusOK,
 		},
@@ -186,8 +198,11 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   invalidId,
 			wantStatus:  http.StatusBadRequest,
 		},
@@ -200,8 +215,11 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			wantStatus:  http.StatusInternalServerError,
 		},
@@ -218,7 +236,7 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/comments/%s", tt.commentId)
 			req, _ := http.NewRequest(http.MethodDelete, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -235,8 +253,7 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		accountId   int
-		accountName string
+		account    *models.AccountInfo
 		query       string
 		movieId     string
 		wantStatus  int
@@ -248,8 +265,11 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     validId,
 			wantStatus:  http.StatusOK,
 		},
@@ -260,8 +280,11 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			query:       "&order_by=likes&offset=2&limit=20",
 			movieId:     validId,
 			wantStatus:  http.StatusOK,
@@ -273,8 +296,11 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			query:       "&order_by=likes&offset=2&limit=invalidLimit",
 			movieId:     validId,
 			wantStatus:  http.StatusBadRequest,
@@ -286,8 +312,11 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     invalidId,
 			wantStatus:  http.StatusBadRequest,
 		},
@@ -300,8 +329,11 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			movieId:     validId,
 			wantStatus:  http.StatusInternalServerError,
 		},
@@ -318,7 +350,7 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/comments?movie_id=%s%s", tt.movieId, tt.query)
 			req, _ := http.NewRequest(http.MethodGet, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -335,8 +367,7 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		accountId   int
-		accountName string
+		account    *models.AccountInfo
 		commentId   string
 		liked       interface{}
 		wantStatus  int
@@ -348,8 +379,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			liked:       false,
 			wantStatus:  http.StatusOK,
@@ -361,8 +395,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			liked:       true,
 			wantStatus:  http.StatusOK,
@@ -374,8 +411,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   invalidId,
 			liked:       false,
 			wantStatus:  http.StatusBadRequest,
@@ -387,8 +427,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			liked:       "notBool",
 			wantStatus:  http.StatusBadRequest,
@@ -402,8 +445,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			liked:       false,
 			wantStatus:  http.StatusInternalServerError,
@@ -417,8 +463,11 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				conf:   &config.Config{},
 				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			liked:       true,
 			wantStatus:  http.StatusInternalServerError,
@@ -436,7 +485,7 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/comments/%s/like?liked=%v", tt.commentId, tt.liked)
 			req, _ := http.NewRequest(http.MethodPost, reqUrl, nil)
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)
@@ -453,8 +502,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 	tests := []struct {
 		name        string
 		fields      fields
-		accountId   int
-		accountName string
+		account    *models.AccountInfo
 		commentId   string
 		body        interface{}
 		wantStatus  int
@@ -466,8 +514,11 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -481,8 +532,11 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   invalidId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -496,8 +550,11 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				conf:    &config.Config{},
 				logger:  logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			body: map[string]interface{}{
 				"content": 12,
@@ -510,11 +567,14 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				storage: &mock.Storage{
 					UpdateCommentErr: true,
 				},
-				conf:    &config.Config{},
-				logger:  logger,
+				conf:   &config.Config{},
+				logger: logger,
 			},
-			accountId:   1,
-			accountName: accountName,
+			account: &models.AccountInfo{
+				ID:    1,
+				Login: accountLogin,
+				Role:  accountRole,
+			},
 			commentId:   validId,
 			body: &models.Comment{
 				Content: contentExample,
@@ -536,7 +596,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 			w := httptest.NewRecorder()
 			reqUrl := fmt.Sprintf("/comments/%s", tt.commentId)
 			req, _ := http.NewRequest(http.MethodPut, reqUrl, bytes.NewBuffer(jsonBody))
-			setAccountHeaders(req, tt.accountId, tt.accountName)
+			setAccountHeaders(req, tt.account)
 
 			a.Router.ServeHTTP(w, req)
 			checkResponseStatusCode(t, tt.wantStatus, w.Code)

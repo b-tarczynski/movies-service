@@ -1,6 +1,9 @@
 package storage
 
-import "github.com/BarTar213/movies-service/models"
+import (
+	"github.com/BarTar213/movies-service/models"
+)
+
 
 func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)

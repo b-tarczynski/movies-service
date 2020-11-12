@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/BarTar213/movies-service/models"
+	"github.com/go-pg/pg/v10"
 )
 
 var exampleErr = errors.New("example error")
@@ -21,6 +22,10 @@ type Storage struct {
 	LikeCommentErr       bool
 	DeleteCommentLikeErr bool
 	DeleteCommentErr     bool
+
+	GetCreditsErr         bool
+	GetCreditsNotFoundErr bool
+	AddCreditsErr         bool
 }
 
 func (s *Storage) GetMovie(movie *models.Movie) error {
@@ -95,6 +100,23 @@ func (s *Storage) LikeComment(userId int, commentId int) error {
 
 func (s *Storage) DeleteCommentLike(userId int, commentId int) error {
 	if s.DeleteCommentLikeErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) GetCredits(movieId int, credit *models.Credit) error {
+	if s.GetCreditsErr {
+		return exampleErr
+	}
+	if s.GetCreditsNotFoundErr{
+		return pg.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Storage) AddCredits(credit *models.Credit) error {
+	if s.AddCreditsErr {
 		return exampleErr
 	}
 	return nil
