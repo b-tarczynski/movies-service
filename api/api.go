@@ -52,35 +52,40 @@ func NewApi(options ...func(api *Api)) *Api {
 		option(a)
 	}
 
-	mh := NewMovieHandlers(a.Storage, a.TmdbClient, a.Logger)
-	ch := NewCommentHandlers(a.Storage, a.Logger)
+	moviesHndl := NewMovieHandlers(a.Storage, a.TmdbClient, a.Logger)
+	commentsHndl := NewCommentHandlers(a.Storage, a.Logger)
 
 	a.Router.Use(gin.Recovery())
 
-	movies := a.Router.Group("/movies")
+	standard := a.Router.Group("")
 	{
-		movies.GET("", mh.ListMovies)
-		movies.GET("/:movieId", mh.GetMovie)
-		movies.GET("/:movieId/credits", mh.GetCredits)
-
-		authorized := movies.Group("")
-		authorized.Use(middleware.CheckAccount())
+		movies := standard.Group("/movies")
 		{
-			authorized.POST("/:movieId/like", mh.LikeMovie)
+			movies.GET("", moviesHndl.ListMovies)
+			movies.GET("/:movieId", moviesHndl.GetMovie)
+			movies.GET("/:movieId/credits", moviesHndl.GetCredits)
+		}
+
+		comments := standard.Group("/comments")
+		{
+			comments.GET("", commentsHndl.GetComments)
 		}
 	}
 
-	comments := a.Router.Group("/comments")
+	authorized := a.Router.Group("")
+	authorized.Use(middleware.CheckAccount())
 	{
-		comments.GET("", ch.GetComments)
-
-		authorized := comments.Group("")
-		authorized.Use(middleware.CheckAccount())
+		movies := authorized.Group("/movies")
 		{
-			authorized.POST("", ch.AddComment)
-			authorized.POST("/:commId/like", ch.LikeComment)
-			authorized.PUT("/:commId", ch.UpdateComment)
-			authorized.DELETE("/:commId", ch.DeleteComment)
+			movies.POST("/:movieId/like", moviesHndl.LikeMovie)
+		}
+
+		comments := authorized.Group("/comments")
+		{
+			comments.POST("", commentsHndl.AddComment)
+			comments.POST("/:commId/like", commentsHndl.LikeComment)
+			comments.PUT("/:commId", commentsHndl.UpdateComment)
+			comments.DELETE("/:commId", commentsHndl.DeleteComment)
 		}
 	}
 
