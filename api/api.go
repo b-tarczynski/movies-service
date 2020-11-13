@@ -7,16 +7,18 @@ import (
 	"github.com/BarTar213/movies-service/middleware"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/BarTar213/movies-service/tmdb"
+	notificator "github.com/BarTar213/notificator/client"
 	"github.com/gin-gonic/gin"
 )
 
 type Api struct {
-	Port       string
-	Router     *gin.Engine
-	Config     *config.Config
-	Storage    storage.Storage
-	TmdbClient tmdb.Client
-	Logger     *log.Logger
+	Port        string
+	Router      *gin.Engine
+	Config      *config.Config
+	Storage     storage.Storage
+	TmdbClient  tmdb.Client
+	Notificator notificator.Client
+	Logger      *log.Logger
 }
 
 func WithConfig(conf *config.Config) func(a *Api) {
@@ -40,6 +42,12 @@ func WithStorage(storage storage.Storage) func(a *Api) {
 func WithTmdbClient(tmdb tmdb.Client) func(a *Api) {
 	return func(a *Api) {
 		a.TmdbClient = tmdb
+	}
+}
+
+func WithNotificator(notificator notificator.Client) func(a *Api) {
+	return func(a *Api) {
+		a.Notificator = notificator
 	}
 }
 

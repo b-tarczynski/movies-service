@@ -1,5 +1,6 @@
 api:
   port: ":8080"
+  timeout: 5s
 postgres:
   address: "localhost:5432"
   user: "postgres"
@@ -8,3 +9,5 @@ postgres:
 tmdb:
   url: "https://api.themoviedb.org/3"
   key: "key"
+notificator:
+  address: "localhost:8082"

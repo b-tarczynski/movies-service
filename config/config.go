@@ -2,18 +2,21 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Api      Api
-	Postgres Postgres
-	Tmdb     Tmdb
+	Api         Api
+	Postgres    Postgres
+	Tmdb        Tmdb
+	Notificator Notificator
 }
 
 type Api struct {
 	Port    string
+	Timeout time.Duration
 	Release bool
 }
 
@@ -27,6 +30,10 @@ type Postgres struct {
 type Tmdb struct {
 	Url string
 	Key string
+}
+
+type Notificator struct {
+	Address string
 }
 
 func NewConfig(fileName string) *Config {
