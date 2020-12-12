@@ -7,6 +7,7 @@ import (
 	"github.com/BarTar213/movies-service/config"
 	"github.com/BarTar213/movies-service/models"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 )
 
 const (
@@ -49,6 +50,11 @@ func NewPostgres(config *config.Postgres) (Storage, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	orm.RegisterTable((*models.MovieCompany)(nil))
+	orm.RegisterTable((*models.MovieCountry)(nil))
+	orm.RegisterTable((*models.MovieGenre)(nil))
+	orm.RegisterTable((*models.MovieLanguage)(nil))
 
 	return &Postgres{db: db}, nil
 }

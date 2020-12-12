@@ -12,7 +12,7 @@ import (
 
 const (
 	invalidRequestBodyErr        = "invalid request body"
-	invalidMovieIdParamErr       = "invalid param - commentId"
+	invalidMovieIdParamErr       = "invalid param - movieId"
 	invalidCommentIdParamErr     = "invalid param - commentId"
 	invalidLikedParamErr         = "invalid param - liked"
 	invalidPaginationQueryParams = "invalid pagination query params"

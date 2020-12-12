@@ -1,9 +1,9 @@
-GET http://localhost:8080/movies?title=t&offset=0&limit=100
+GET http://localhost:8080/movies?offset=0&limit=100&title=Avengers
 Accept: application/json
 
 ###
 
-GET http://localhost:8080/movies/2
+GET http://localhost:8080/movies/99861
 Accept: application/json
 X-Account-Id: 1
 X-Account: bar

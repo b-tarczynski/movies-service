@@ -50,7 +50,7 @@ func (h *MovieHandlers) GetMovie(c *gin.Context) {
 }
 
 func (h *MovieHandlers) ListMovies(c *gin.Context) {
-	params := models.PaginationParams{OrderBy: "vote_average"}
+	params := models.PaginationParams{OrderBy: "revenue DESC"}
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})
