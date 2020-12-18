@@ -16,7 +16,7 @@ type Movie struct {
 	Overview         string      `json:"overview"`
 	Popularity       float32     `json:"popularity"`
 	PosterPath       string      `json:"poster_path"`
-	ReleaseDate      time.Time        `json:"release_date"`
+	ReleaseDate      time.Time   `json:"release_date"`
 	Revenue          int64       `json:"revenue"`
 	Runtime          int         `json:"runtime"`
 	Status           string      `json:"status"`
@@ -28,25 +28,6 @@ type Movie struct {
 	Companies        []*Company  `json:"production_companies" pg:",many2many:movie_companies"`
 	Genres           []*Genre    `json:"genres" pg:",many2many:movie_genres"`
 	Languages        []*Language `json:"spoken_languages" pg:",many2many:movie_languages"`
-}
-
-type Time struct {
-	time.Time
-}
-
-func (t *Time) UnmarshalJSON(data []byte) error {
-	// Ignore null, like in the main JSON package.
-	if string(data) == "null" {
-		return nil
-	}
-	if len(string(data)) <= 2 {
-		return nil
-	}
-	// Fractional seconds are handled implicitly by Parse.
-	var err error
-	tt, err := time.Parse(`"`+"2006-01-02"+`"`, string(data))
-	*t = Time{tt}
-	return err
 }
 
 func (m *Movie) Reset() {

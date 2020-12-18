@@ -36,9 +36,29 @@ func (p *Postgres) LikeMovie(userId int, movieId int) error {
 }
 
 func (p *Postgres) DeleteMovieLike(userId int, movieId int) error {
-	_, err := p.db.ExecOne("DELETE FROM liked_movies WHERE user_id=? AND movie_id=?)", userId, movieId)
+	_, err := p.db.ExecOne("DELETE FROM liked_movies WHERE user_id=? AND movie_id=?", userId, movieId)
 
 	return err
+}
+
+func (p *Postgres) ListLikedMovies(userId int, params *models.PaginationParams) ([]models.MoviePreview, error) {
+	movies := make([]models.MoviePreview, 0)
+	err := p.db.Model((*models.LikedMovie)(nil)).
+		Column("m.*").
+		Where("user_id=?", userId).
+		Join("LEFT JOIN movies m ON m.id = liked_movie.movie_id").
+		Order(params.OrderBy).
+		Offset(params.Offset).
+		Limit(params.Limit).
+		Select(&movies)
+
+	return movies, err
+}
+
+func (p *Postgres) CheckLiked(likedMovie *models.LikedMovie) (bool, error) {
+	return p.db.Model(likedMovie).
+		WherePK().
+		Exists()
 }
 
 func (p *Postgres) AddRecentViewedMovie(userId int, movieId int) error {

@@ -1,16 +1,16 @@
-GET http://localhost:8080/movies?offset=0&limit=100&title=Avengers
+GET http://localhost:8083/movies?offset=0&limit=100&title=Avengers
 Accept: application/json
 
 ###
 
-GET http://localhost:8080/movies/99861
+GET http://localhost:8083/movies/99861
 Accept: application/json
 X-Account-Id: 1
 X-Account: bar
 
 ###
 
-POST http://localhost:8080/movies/1/like
+POST http://localhost:8083/movies/1/like
 Accept: application/json
 X-Account-Id: 1
 X-Account: bar

@@ -1,9 +1,9 @@
-GET http://localhost:8080/comments?movie_id=1
+GET http://localhost:8083/comments?movie_id=1
 Accept: application/json
 
 ###
 
-POST http://localhost:8080/comments?movie_id=1
+POST http://localhost:8083/comments?movie_id=1
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
@@ -14,7 +14,7 @@ X-Account: bar
 
 ###
 
-PUT http://localhost:8080/comments/17
+PUT http://localhost:8083/comments/17
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
@@ -25,14 +25,14 @@ X-Account: bar
 
 ###
 
-POST http://localhost:8080/comments/17/like?liked=false
+POST http://localhost:8083/comments/17/like?liked=false
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
 
 ###
 
-DELETE http://localhost:8080/comments/17
+DELETE http://localhost:8083/comments/17
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar

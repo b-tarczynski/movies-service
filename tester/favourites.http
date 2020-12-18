@@ -1,0 +1,15 @@
+GET http://localhost:8083/favourites
+Accept: application/json
+X-Account-Id: 1
+X-Account: bar
+X-Role: standard
+
+###
+
+GET http://localhost:8083/favourites/597
+Accept: application/json
+X-Account-Id: 1
+X-Account: bar
+X-Role: standard
+
+###

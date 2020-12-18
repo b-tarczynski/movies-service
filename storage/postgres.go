@@ -22,9 +22,12 @@ type Postgres struct {
 type Storage interface {
 	GetMovie(movie *models.Movie) error
 	ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error)
+	AddRecentViewedMovie(userId int, movieId int) error
+
 	LikeMovie(userId int, movieId int) error
 	DeleteMovieLike(userId int, movieId int) error
-	AddRecentViewedMovie(userId int, movieId int) error
+	ListLikedMovies(userId int, params *models.PaginationParams) ([]models.MoviePreview, error)
+	CheckLiked(likedMovie *models.LikedMovie) (bool, error)
 
 	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
 	LikeComment(userId int, commentId int) error

@@ -15,6 +15,8 @@ type Storage struct {
 	LikeMovieErr            bool
 	DeleteMovieLikeErr      bool
 	AddRecentViewedMovieErr bool
+	ListLikedMoviesErr      bool
+	CheckLikedErr           bool
 
 	GetMovieCommentsErr  bool
 	AddMovieCommentErr   bool
@@ -109,7 +111,7 @@ func (s *Storage) GetCredits(movieId int, credit *models.Credit) error {
 	if s.GetCreditsErr {
 		return exampleErr
 	}
-	if s.GetCreditsNotFoundErr{
+	if s.GetCreditsNotFoundErr {
 		return pg.ErrNoRows
 	}
 	return nil
@@ -120,4 +122,18 @@ func (s *Storage) AddCredits(credit *models.Credit) error {
 		return exampleErr
 	}
 	return nil
+}
+
+func (s *Storage) ListLikedMovies(userId int, params *models.PaginationParams) ([]models.MoviePreview, error) {
+	if s.ListLikedMoviesErr {
+		return nil, exampleErr
+	}
+	return []models.MoviePreview{}, nil
+}
+
+func (s *Storage) CheckLiked(likedMovie *models.LikedMovie) (bool, error) {
+	if s.CheckLikedErr {
+		return false, exampleErr
+	}
+	return true, nil
 }

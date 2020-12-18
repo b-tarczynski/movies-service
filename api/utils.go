@@ -17,11 +17,12 @@ const (
 	invalidLikedParamErr         = "invalid param - liked"
 	invalidPaginationQueryParams = "invalid pagination query params"
 
-	likedParam      = "liked"
-	movieIdQuery    = "movie_id"
-	movieResource   = "movie"
-	commentResource = "comment"
-	creditsResource = "credits"
+	likedParam           = "liked"
+	movieIdQuery         = "movie_id"
+	movieResource        = "movie"
+	movieCommentResource = "movie comment"
+	commentResource      = "comment"
+	creditsResource      = "credits"
 )
 
 func handlePostgresError(c *gin.Context, l *log.Logger, err error, resource string) {

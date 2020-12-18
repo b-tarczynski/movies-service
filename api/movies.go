@@ -89,7 +89,7 @@ func (h *MovieHandlers) LikeMovie(c *gin.Context) {
 		err = h.storage.LikeMovie(account.ID, movieId)
 	}
 	if err != nil {
-		handlePostgresError(c, h.logger, err, movieResource)
+		handlePostgresError(c, h.logger, err, movieCommentResource)
 		return
 	}
 
@@ -107,4 +107,45 @@ func (h *MovieHandlers) AddRecentViewedMovie(c *gin.Context, movieId int) {
 	if err != nil {
 		h.logger.Printf("addRecentViewedMovie: %s", err)
 	}
+}
+
+func (h *MovieHandlers) ListLikedMovies(c *gin.Context) {
+	params := &models.PaginationParams{OrderBy: "revenue DESC"}
+	err := c.ShouldBindQuery(params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	movies, err := h.storage.ListLikedMovies(account.ID, params)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, movieCommentResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, models.Response{Data: movies})
+}
+
+func (h *MovieHandlers) CheckLiked(c *gin.Context) {
+	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	likedMovie := &models.LikedMovie{
+		MovieId: movieId,
+		UserId:  account.ID,
+	}
+	liked, err := h.storage.CheckLiked(likedMovie)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, movieCommentResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]bool{"liked": liked})
 }

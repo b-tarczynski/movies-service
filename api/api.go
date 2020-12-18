@@ -88,6 +88,12 @@ func NewApi(options ...func(api *Api)) *Api {
 			movies.POST("/:movieId/like", moviesHndl.LikeMovie)
 		}
 
+		favourites := authorized.Group("/favourites")
+		{
+			favourites.GET("", moviesHndl.ListLikedMovies)
+			favourites.GET("/:movieId", moviesHndl.CheckLiked)
+		}
+
 		comments := authorized.Group("/comments")
 		{
 			comments.POST("", commentsHndl.AddComment)
