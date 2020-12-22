@@ -1,15 +1,16 @@
-GET http://localhost:8083/comments?movie_id=1
+GET http://localhost:8083/comments?movie_id=299534
 Accept: application/json
 
 ###
 
-POST http://localhost:8083/comments?movie_id=1
+POST http://localhost:8083/comments?movie_id=299534
 Content-Type: application/json
 X-Account-Id: 1
 X-Account: bar
+X-Role: standard
 
 {
-  "content": "test comment here"
+  "content": "bartek to fajny dzban"
 }
 
 ###

@@ -18,12 +18,13 @@ type Storage struct {
 	ListLikedMoviesErr      bool
 	CheckLikedErr           bool
 
-	GetMovieCommentsErr  bool
-	AddMovieCommentErr   bool
-	UpdateCommentErr     bool
-	LikeCommentErr       bool
-	DeleteCommentLikeErr bool
-	DeleteCommentErr     bool
+	GetMovieCommentsErr          bool
+	ListLikedCommentsForMovieErr bool
+	AddMovieCommentErr           bool
+	UpdateCommentErr             bool
+	LikeCommentErr               bool
+	DeleteCommentLikeErr         bool
+	DeleteCommentErr             bool
 
 	GetCreditsErr         bool
 	GetCreditsNotFoundErr bool
@@ -37,7 +38,7 @@ func (s *Storage) GetMovie(movie *models.Movie) error {
 	return nil
 }
 
-func (s *Storage) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
+func (s *Storage) ListMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
 	if s.GetMovieCommentsErr {
 		return nil, exampleErr
 	}
@@ -136,4 +137,11 @@ func (s *Storage) CheckLiked(likedMovie *models.LikedMovie) (bool, error) {
 		return false, exampleErr
 	}
 	return true, nil
+}
+
+func (s *Storage) ListLikedCommentsForMovie(movieID, userID int) ([]int, error) {
+	if s.ListLikedCommentsForMovieErr {
+		return nil, exampleErr
+	}
+	return []int{}, nil
 }

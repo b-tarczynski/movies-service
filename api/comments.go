@@ -28,7 +28,7 @@ func NewCommentHandlers(storage storage.Storage, logger *log.Logger) *CommentHan
 	}
 }
 
-func (h *CommentHandlers) GetComments(c *gin.Context) {
+func (h *CommentHandlers) ListComments(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query(movieIdQuery))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{Error: invalidMovieIdParamErr})
@@ -42,7 +42,7 @@ func (h *CommentHandlers) GetComments(c *gin.Context) {
 		return
 	}
 
-	comments, err := h.storage.GetMovieComments(id, &params)
+	comments, err := h.storage.ListMovieComments(id, &params)
 	if err != nil {
 		handlePostgresError(c, h.logger, err, commentResource)
 		return
@@ -159,4 +159,22 @@ func (h *CommentHandlers) DeleteComment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.Response{})
+}
+
+func (h *CommentHandlers) ListLikedComments(c *gin.Context) {
+	account := utils.GetAccount(c)
+
+	id, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	commentIds, err := h.storage.ListLikedCommentsForMovie(id, account.ID)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, commentResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, commentIds)
 }

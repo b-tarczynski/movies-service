@@ -4,8 +4,7 @@ import (
 	"github.com/BarTar213/movies-service/models"
 )
 
-
-func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
+func (p *Postgres) ListMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 
 	err := p.db.Model(&comments).
@@ -20,6 +19,19 @@ func (p *Postgres) GetMovieComments(movieId int, params *models.PaginationParams
 		Select()
 
 	return comments, err
+}
+
+func (p *Postgres) ListLikedCommentsForMovie(movieID, userID int) ([]int, error) {
+	ids := make([]int, 0)
+
+	err := p.db.Model((*models.LikedComment)(nil)).
+		Column("comment_id").
+		Where("c.movie_id = ?", movieID).
+		Where("liked_comment.user_id = ?", userID).
+		Join("LEFT JOIN comments c ON liked_comment.comment_id = c.id").
+		Select(&ids)
+
+	return ids, err
 }
 
 func (p *Postgres) LikeComment(userId int, commentId int) error {

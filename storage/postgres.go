@@ -29,7 +29,8 @@ type Storage interface {
 	ListLikedMovies(userId int, params *models.PaginationParams) ([]models.MoviePreview, error)
 	CheckLiked(likedMovie *models.LikedMovie) (bool, error)
 
-	GetMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
+	ListMovieComments(movieId int, params *models.PaginationParams) ([]models.Comment, error)
+	ListLikedCommentsForMovie(movieID, userID int) ([]int, error)
 	LikeComment(userId int, commentId int) error
 	DeleteCommentLike(userId int, commentId int) error
 	AddMovieComment(comment *models.Comment) error

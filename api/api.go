@@ -76,7 +76,7 @@ func NewApi(options ...func(api *Api)) *Api {
 
 		comments := standard.Group("/comments")
 		{
-			comments.GET("", commentsHndl.GetComments)
+			comments.GET("", commentsHndl.ListComments)
 		}
 	}
 
@@ -92,6 +92,8 @@ func NewApi(options ...func(api *Api)) *Api {
 		{
 			favourites.GET("", moviesHndl.ListLikedMovies)
 			favourites.GET("/:movieId", moviesHndl.CheckLiked)
+			favourites.GET("/:movieId/comments", commentsHndl.ListLikedComments)
+
 		}
 
 		comments := authorized.Group("/comments")
