@@ -16,11 +16,10 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 	return err
 }
 
-func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.Movie, error) {
-	movies := make([]models.Movie, 0)
+func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error) {
+	movies := make([]models.MoviePreview, 0)
 	err := p.db.Model(&movies).
 		Where("title like ?", title).
-		Relation(genres).
 		Order(params.OrderBy).
 		Offset(params.Offset).
 		Limit(params.Limit).
