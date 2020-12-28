@@ -23,6 +23,7 @@ const (
 	movieCommentResource = "movie comment"
 	commentResource      = "comment"
 	creditsResource      = "credits"
+	ratingResource       = "rating"
 )
 
 func handlePostgresError(c *gin.Context, l *log.Logger, err error, resource string) {

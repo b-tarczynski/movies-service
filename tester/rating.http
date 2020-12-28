@@ -1,0 +1,15 @@
+POST http://localhost:8083/movies/299534/rating
+Content-Type: application/json
+X-Account-Id: 3
+X-Account: login
+X-Role: standard
+
+{
+  "value": 5
+}
+
+###
+DELETE http://localhost:8083/movies/299534/rating
+X-Account-Id: 3
+X-Account: login
+X-Role: standard

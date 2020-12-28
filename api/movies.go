@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
@@ -148,4 +149,54 @@ func (h *MovieHandlers) CheckLiked(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]bool{"liked": liked})
+}
+
+func (h *MovieHandlers) RateMovie(c *gin.Context) {
+	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	rating := &models.Rating{}
+	err = c.ShouldBindJSON(rating)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidRequestBodyErr})
+		return
+	}
+	rating.UserId = account.ID
+	rating.MovieId = movieId
+	rating.CreateDate = time.Now()
+
+	err = h.storage.AddRating(rating)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, ratingResource)
+		return
+	}
+
+	c.JSON(http.StatusCreated, rating)
+}
+
+func (h MovieHandlers) DeleteRating(c *gin.Context) {
+	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	rating := &models.Rating{
+		UserId:  account.ID,
+		MovieId: movieId,
+	}
+	err = h.storage.DeleteRating(rating)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, ratingResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, &models.Response{})
 }

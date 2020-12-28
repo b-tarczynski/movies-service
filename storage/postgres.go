@@ -39,6 +39,9 @@ type Storage interface {
 
 	GetCredits(movieId int, credit *models.Credit) error
 	AddCredits(credit *models.Credit) error
+
+	AddRating(rating *models.Rating) error
+	DeleteRating(rating *models.Rating) error
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {

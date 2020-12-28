@@ -29,6 +29,9 @@ type Storage struct {
 	GetCreditsErr         bool
 	GetCreditsNotFoundErr bool
 	AddCreditsErr         bool
+
+	AddRatingErr    bool
+	DeleteRatingErr bool
 }
 
 func (s *Storage) GetMovie(movie *models.Movie) error {
@@ -144,4 +147,18 @@ func (s *Storage) ListLikedCommentsForMovie(movieID, userID int) ([]int, error) 
 		return nil, exampleErr
 	}
 	return []int{}, nil
+}
+
+func (s *Storage) AddRating(rating *models.Rating) error {
+	if s.AddRatingErr {
+		return exampleErr
+	}
+	return nil
+}
+
+func (s *Storage) DeleteRating(rating *models.Rating) error {
+	if s.DeleteRatingErr {
+		return exampleErr
+	}
+	return nil
 }

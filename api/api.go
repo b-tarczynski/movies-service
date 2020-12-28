@@ -86,6 +86,9 @@ func NewApi(options ...func(api *Api)) *Api {
 		movies := authorized.Group("/movies")
 		{
 			movies.POST("/:movieId/like", moviesHndl.LikeMovie)
+
+			movies.POST("/:movieId/rating", moviesHndl.RateMovie)
+			movies.DELETE("/:movieId/rating", moviesHndl.DeleteRating)
 		}
 
 		favourites := authorized.Group("/favourites")
