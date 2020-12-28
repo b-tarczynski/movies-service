@@ -14,21 +14,21 @@ func (p *Postgres) AddRating(rating *models.Rating) error {
 
 	err := p.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
 		oldRating := &models.Rating{
-			UserId:     rating.UserId,
-			MovieId:    rating.MovieId,
+			UserId:  rating.UserId,
+			MovieId: rating.MovieId,
 		}
 		err := tx.Model(oldRating).WherePK().Select()
 		if err != nil && err != pg.ErrNoRows {
 			return err
 		}
 
-		if oldRating.Value == rating.Value {
+		if oldRating.Rating == rating.Rating {
 			return nil
 		}
 
 		_, err = tx.Model(rating).
 			OnConflict("(user_id, movie_id) DO UPDATE").
-			Set("value=?value").
+			Set("rating=?rating").
 			Set("create_date=?create_date").
 			Returning(all).
 			Insert()
@@ -39,8 +39,8 @@ func (p *Postgres) AddRating(rating *models.Rating) error {
 		query := tx.Model((*models.Movie)(nil)).
 			Where("id=?", rating.MovieId)
 
-		if oldRating.Value != nil {
-			additionalValue := *rating.Value - *oldRating.Value
+		if oldRating.Rating != nil {
+			additionalValue := *rating.Rating - *oldRating.Rating
 			query.Set("vote_sum=vote_sum+?", additionalValue)
 		} else {
 			query.Set("vote_count=vote_count+1")
@@ -61,4 +61,17 @@ func (p *Postgres) DeleteRating(rating *models.Rating) error {
 		Delete()
 
 	return err
+}
+
+func (p *Postgres) ListRatedMovies(userID int) ([]models.MoviePreview, error) {
+	movies :=  make([]models.MoviePreview, 0)
+
+	err := p.db.Model((*models.Rating)(nil)).
+		Column("m.*").
+		Column("rating").
+		Where("user_id=?", userID).
+		Join("LEFT JOIN movies m ON m.id = rating.movie_id").
+		Select(&movies)
+
+	return movies, err
 }

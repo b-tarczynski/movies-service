@@ -200,3 +200,22 @@ func (h MovieHandlers) DeleteRating(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &models.Response{})
 }
+
+func (h *MovieHandlers) ListRatedMovies(c *gin.Context) {
+	params := &models.PaginationParams{OrderBy: "create_date DESC"}
+	err := c.ShouldBindQuery(params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: invalidPaginationQueryParams})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	ratings, err := h.storage.ListRatedMovies(account.ID)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, ratingResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, ratings)
+}

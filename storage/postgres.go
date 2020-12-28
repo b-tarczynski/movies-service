@@ -42,6 +42,7 @@ type Storage interface {
 
 	AddRating(rating *models.Rating) error
 	DeleteRating(rating *models.Rating) error
+	ListRatedMovies(userID int) ([]models.MoviePreview, error)
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {

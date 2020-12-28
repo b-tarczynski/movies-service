@@ -8,6 +8,7 @@ type MoviePreview struct {
 	PosterPath  string    `json:"poster_path"`
 	ReleaseDate time.Time `json:"release_date"`
 	VoteAverage float32   `json:"vote_average"`
+	Rating      int       `json:"rating"`
 	Title       string    `json:"title"`
 }
 

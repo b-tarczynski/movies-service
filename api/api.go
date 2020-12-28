@@ -96,7 +96,6 @@ func NewApi(options ...func(api *Api)) *Api {
 			favourites.GET("", moviesHndl.ListLikedMovies)
 			favourites.GET("/:movieId", moviesHndl.CheckLiked)
 			favourites.GET("/:movieId/comments", commentsHndl.ListLikedComments)
-
 		}
 
 		comments := authorized.Group("/comments")
@@ -106,6 +105,8 @@ func NewApi(options ...func(api *Api)) *Api {
 			comments.PUT("/:commId", commentsHndl.UpdateComment)
 			comments.DELETE("/:commId", commentsHndl.DeleteComment)
 		}
+
+		authorized.GET("/rating", moviesHndl.ListRatedMovies)
 	}
 
 	return a
