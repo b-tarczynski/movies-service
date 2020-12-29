@@ -87,6 +87,7 @@ func NewApi(options ...func(api *Api)) *Api {
 		{
 			movies.POST("/:movieId/like", moviesHndl.LikeMovie)
 
+			movies.GET("/:movieId/rating", moviesHndl.GetRating)
 			movies.POST("/:movieId/rating", moviesHndl.RateMovie)
 			movies.DELETE("/:movieId/rating", moviesHndl.DeleteRating)
 		}

@@ -55,6 +55,14 @@ func (p *Postgres) AddRating(rating *models.Rating) error {
 	return err
 }
 
+func (p *Postgres) GetRating(rating *models.Rating) error {
+	err := p.db.Model(rating).
+		WherePK().
+		Select()
+
+	return err
+}
+
 func (p *Postgres) DeleteRating(rating *models.Rating) error {
 	_, err := p.db.Model(rating).
 		WherePK().

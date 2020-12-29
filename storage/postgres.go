@@ -40,6 +40,7 @@ type Storage interface {
 	GetCredits(movieId int, credit *models.Credit) error
 	AddCredits(credit *models.Credit) error
 
+	GetRating(rating *models.Rating) error
 	AddRating(rating *models.Rating) error
 	DeleteRating(rating *models.Rating) error
 	ListRatedMovies(userID int) ([]models.MoviePreview, error)

@@ -19,6 +19,7 @@ func (p *Postgres) GetMovie(movie *models.Movie) error {
 func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error) {
 	movies := make([]models.MoviePreview, 0)
 	err := p.db.Model(&movies).
+		ExcludeColumn("rating").
 		Where("title like ?", title).
 		Order(params.OrderBy).
 		Offset(params.Offset).

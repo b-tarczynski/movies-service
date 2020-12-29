@@ -12,6 +12,7 @@ import (
 	"github.com/BarTar213/movies-service/tmdb"
 	"github.com/BarTar213/movies-service/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-pg/pg/v10"
 )
 
 const (
@@ -218,4 +219,27 @@ func (h *MovieHandlers) ListRatedMovies(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ratings)
+}
+
+func (h *MovieHandlers) GetRating(c *gin.Context) {
+	movieId, err := strconv.Atoi(c.Param(movieIdKey))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Response{Error: err.Error()})
+		return
+	}
+
+	account := utils.GetAccount(c)
+
+	rating := &models.Rating{
+		UserId:  account.ID,
+		MovieId: movieId,
+		Rating: intPointer(0),
+	}
+	err = h.storage.GetRating(rating)
+	if err != nil && err != pg.ErrNoRows {
+		handlePostgresError(c, h.logger, err, ratingResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, rating)
 }

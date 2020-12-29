@@ -66,3 +66,7 @@ func handleTMDBError(c *gin.Context, l *log.Logger, status int, err error, resou
 
 	c.JSON(http.StatusInternalServerError, models.Response{Error: "api error"})
 }
+
+func intPointer(i int) *int {
+	return &i
+}
