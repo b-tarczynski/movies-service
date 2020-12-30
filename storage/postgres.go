@@ -20,6 +20,8 @@ type Postgres struct {
 }
 
 type Storage interface {
+	AddMovie(movie *models.TmdbMovie) error
+
 	GetMovie(movie *models.Movie) error
 	ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error)
 	AddRecentViewedMovie(userId int, movieId int) error
@@ -43,7 +45,7 @@ type Storage interface {
 	GetRating(rating *models.Rating) error
 	AddRating(rating *models.Rating) error
 	DeleteRating(rating *models.Rating) error
-	ListRatedMovies(userID int) ([]models.MoviePreview, error)
+	ListRatedMovies(userID int, params *models.PaginationParams) ([]models.MoviePreview, error)
 }
 
 func NewPostgres(config *config.Postgres) (Storage, error) {

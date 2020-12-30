@@ -10,6 +10,7 @@ import (
 var exampleErr = errors.New("example error")
 
 type Storage struct {
+	AddMovieErr             bool
 	GetMovieErr             bool
 	ListMoviesErr           bool
 	LikeMovieErr            bool
@@ -34,6 +35,13 @@ type Storage struct {
 	AddRatingErr       bool
 	DeleteRatingErr    bool
 	ListRatedMoviesErr bool
+}
+
+func (s *Storage) AddMovie(movie *models.TmdbMovie) error {
+	if s.AddMovieErr {
+		return exampleErr
+	}
+	return nil
 }
 
 func (s *Storage) GetMovie(movie *models.Movie) error {
@@ -165,7 +173,7 @@ func (s *Storage) DeleteRating(rating *models.Rating) error {
 	return nil
 }
 
-func (s *Storage) ListRatedMovies(userID int) ([]models.MoviePreview, error) {
+func (s *Storage) ListRatedMovies(userID int, params *models.PaginationParams) ([]models.MoviePreview, error) {
 	if s.ListRatedMoviesErr {
 		return nil, exampleErr
 	}

@@ -1,4 +1,4 @@
-POST http://localhost:8083/movies/299537/rating
+POST http://localhost:8083/movies/671/rating
 Content-Type: application/json
 X-Account-Id: 3
 X-Account: login

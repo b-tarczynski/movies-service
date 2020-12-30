@@ -212,7 +212,7 @@ func (h *MovieHandlers) ListRatedMovies(c *gin.Context) {
 
 	account := utils.GetAccount(c)
 
-	ratings, err := h.storage.ListRatedMovies(account.ID)
+	ratings, err := h.storage.ListRatedMovies(account.ID, params)
 	if err != nil {
 		handlePostgresError(c, h.logger, err, ratingResource)
 		return
@@ -233,7 +233,7 @@ func (h *MovieHandlers) GetRating(c *gin.Context) {
 	rating := &models.Rating{
 		UserId:  account.ID,
 		MovieId: movieId,
-		Rating: intPointer(0),
+		Rating:  intPointer(0),
 	}
 	err = h.storage.GetRating(rating)
 	if err != nil && err != pg.ErrNoRows {
@@ -242,4 +242,25 @@ func (h *MovieHandlers) GetRating(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, rating)
+}
+
+func (h *MovieHandlers) GetTrendingMovies(c *gin.Context) {
+	movies, status, err := h.tmdb.GetTrendingMovies()
+	if err != nil || status != http.StatusOK {
+		handleTMDBError(c, h.logger, status, err, creditsResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, movies)
+	go h.AddMovies(movies)
+}
+
+func (h *MovieHandlers) AddMovies(movies []models.TmdbMovie) {
+	for i := range movies {
+		movies[i].VoteCount = 0
+		err := h.storage.AddMovie(&movies[i])
+		if err != nil {
+			h.logger.Printf("Storage add movie: %s", err)
+		}
+	}
 }

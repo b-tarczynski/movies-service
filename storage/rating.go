@@ -71,7 +71,7 @@ func (p *Postgres) DeleteRating(rating *models.Rating) error {
 	return err
 }
 
-func (p *Postgres) ListRatedMovies(userID int) ([]models.MoviePreview, error) {
+func (p *Postgres) ListRatedMovies(userID int, params *models.PaginationParams) ([]models.MoviePreview, error) {
 	movies :=  make([]models.MoviePreview, 0)
 
 	err := p.db.Model((*models.Rating)(nil)).
@@ -79,6 +79,9 @@ func (p *Postgres) ListRatedMovies(userID int) ([]models.MoviePreview, error) {
 		Column("rating").
 		Where("user_id=?", userID).
 		Join("LEFT JOIN movies m ON m.id = rating.movie_id").
+		Order(params.OrderBy).
+		Offset(params.Offset).
+		Limit(params.Limit).
 		Select(&movies)
 
 	return movies, err

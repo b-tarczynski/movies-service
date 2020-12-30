@@ -16,3 +16,8 @@ X-Account-Id: 1
 X-Account: bar
 
 ###
+
+GET http://localhost:8083/trending
+Accept: application/json
+
+###

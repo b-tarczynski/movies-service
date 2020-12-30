@@ -78,6 +78,8 @@ func NewApi(options ...func(api *Api)) *Api {
 		{
 			comments.GET("", commentsHndl.ListComments)
 		}
+
+		standard.GET("/trending", moviesHndl.GetTrendingMovies)
 	}
 
 	authorized := a.Router.Group("")
