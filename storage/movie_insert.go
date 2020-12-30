@@ -18,7 +18,13 @@ func (p *Postgres) AddMovie(movie *models.TmdbMovie) error {
 		Relation("Countries").
 		Relation("Companies").
 		Relation("Languages").
-		OnConflict(doNothingStatement).
+		OnConflict("(id) DO UPDATE").
+		Set("budget=?budget").
+		Set("poster_path=?poster_path").
+		Set("backdrop_path=?backdrop_path").
+		Set("revenue=?revenue").
+		Set("runtime=?runtime").
+		Set("vote_average=?vote_average").
 		Insert()
 	if insertErr != nil {
 		return insertErr
