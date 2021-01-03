@@ -107,7 +107,7 @@ func (s *Storage) AddRecentViewedMovie(userId int, movieId int) error {
 	return nil
 }
 
-func (s *Storage) LikeComment(userId int, commentId int) error {
+func (s *Storage) LikeComment(userId int, commentId int, comment *models.Comment) error {
 	if s.LikeCommentErr {
 		return exampleErr
 	}

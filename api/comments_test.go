@@ -14,6 +14,7 @@ import (
 	"github.com/BarTar213/movies-service/mock"
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
+	notificator "github.com/BarTar213/notificator/client"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,8 +24,9 @@ const (
 
 func TestNewCommentHandlers(t *testing.T) {
 	type args struct {
-		storage storage.Storage
-		logger  *log.Logger
+		storage     storage.Storage
+		notificator notificator.Client
+		logger      *log.Logger
 	}
 	tests := []struct {
 		name string
@@ -34,8 +36,9 @@ func TestNewCommentHandlers(t *testing.T) {
 		{
 			name: "positiveNewCommentHandlers",
 			args: args{
-				storage: &mock.Storage{},
-				logger:  &log.Logger{},
+				storage:     &mock.Storage{},
+				notificator: &mock.Notificator{},
+				logger:      &log.Logger{},
 			},
 			want: &CommentHandlers{
 				storage: &mock.Storage{},
@@ -45,7 +48,7 @@ func TestNewCommentHandlers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewCommentHandlers(tt.args.storage, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
+			if got := NewCommentHandlers(tt.args.storage, tt.args.notificator, tt.args.logger); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewCommentHandlers() = %v, want %v", got, tt.want)
 			}
 		})
@@ -59,12 +62,12 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
-		account     *models.AccountInfo
-		movieId     string
-		body        interface{}
-		wantStatus  int
+		name       string
+		fields     fields
+		account    *models.AccountInfo
+		movieId    string
+		body       interface{}
+		wantStatus int
 	}{
 		{
 			name: "positive_add_comment",
@@ -78,7 +81,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     validId,
+			movieId: validId,
 			body: &models.Comment{
 				Content: contentExample,
 			},
@@ -96,7 +99,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     invalidId,
+			movieId: invalidId,
 			body: &models.Comment{
 				Content: contentExample,
 			},
@@ -116,7 +119,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     validId,
+			movieId: validId,
 			body: &models.Comment{
 				Content: contentExample,
 			},
@@ -134,7 +137,7 @@ func TestCommentHandlers_AddComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     validId,
+			movieId: validId,
 			body: map[string]interface{}{
 				"content": 12,
 			},
@@ -188,8 +191,8 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			wantStatus:  http.StatusOK,
+			commentId:  validId,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "negative_delete_comment_invalid_comment_id_error",
@@ -203,8 +206,8 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   invalidId,
-			wantStatus:  http.StatusBadRequest,
+			commentId:  invalidId,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_delete_comment_storage_error",
@@ -220,8 +223,8 @@ func TestCommentHandlers_DeleteComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			wantStatus:  http.StatusInternalServerError,
+			commentId:  validId,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -251,12 +254,12 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
+		name       string
+		fields     fields
 		account    *models.AccountInfo
-		query       string
-		movieId     string
-		wantStatus  int
+		query      string
+		movieId    string
+		wantStatus int
 	}{
 		{
 			name: "positive_get_comments",
@@ -270,8 +273,8 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     validId,
-			wantStatus:  http.StatusOK,
+			movieId:    validId,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_get_comments_not_default_pagination_params",
@@ -285,9 +288,9 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			query:       "&order_by=likes&offset=2&limit=20",
-			movieId:     validId,
-			wantStatus:  http.StatusOK,
+			query:      "&order_by=likes&offset=2&limit=20",
+			movieId:    validId,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_get_comments_invalid_pagination_params",
@@ -301,9 +304,9 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			query:       "&order_by=likes&offset=2&limit=invalidLimit",
-			movieId:     validId,
-			wantStatus:  http.StatusBadRequest,
+			query:      "&order_by=likes&offset=2&limit=invalidLimit",
+			movieId:    validId,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_get_comments_invalid_movie_id_param_error",
@@ -317,8 +320,8 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     invalidId,
-			wantStatus:  http.StatusBadRequest,
+			movieId:    invalidId,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_get_comments_storage_error",
@@ -334,8 +337,8 @@ func TestCommentHandlers_GetComments(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			movieId:     validId,
-			wantStatus:  http.StatusInternalServerError,
+			movieId:    validId,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -365,12 +368,12 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
+		name       string
+		fields     fields
 		account    *models.AccountInfo
-		commentId   string
-		liked       interface{}
-		wantStatus  int
+		commentId  string
+		liked      interface{}
+		wantStatus int
 	}{
 		{
 			name: "positive_like_comment",
@@ -384,9 +387,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			liked:       false,
-			wantStatus:  http.StatusOK,
+			commentId:  validId,
+			liked:      false,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "positive_delete_like_comment",
@@ -400,9 +403,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			liked:       true,
-			wantStatus:  http.StatusOK,
+			commentId:  validId,
+			liked:      true,
+			wantStatus: http.StatusOK,
 		},
 		{
 			name: "negative_like_comment_invalid_comment_id",
@@ -416,9 +419,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   invalidId,
-			liked:       false,
-			wantStatus:  http.StatusBadRequest,
+			commentId:  invalidId,
+			liked:      false,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_like_comment_invalid_liked_param_err",
@@ -432,9 +435,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			liked:       "notBool",
-			wantStatus:  http.StatusBadRequest,
+			commentId:  validId,
+			liked:      "notBool",
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name: "negative_like_comment_storage_error",
@@ -450,9 +453,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			liked:       false,
-			wantStatus:  http.StatusInternalServerError,
+			commentId:  validId,
+			liked:      false,
+			wantStatus: http.StatusInternalServerError,
 		},
 		{
 			name: "negative_delete_like_comment_storage_error",
@@ -468,9 +471,9 @@ func TestCommentHandlers_LikeComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
-			liked:       true,
-			wantStatus:  http.StatusInternalServerError,
+			commentId:  validId,
+			liked:      true,
+			wantStatus: http.StatusInternalServerError,
 		},
 	}
 	for _, tt := range tests {
@@ -500,12 +503,12 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 		logger  *log.Logger
 	}
 	tests := []struct {
-		name        string
-		fields      fields
+		name       string
+		fields     fields
 		account    *models.AccountInfo
-		commentId   string
-		body        interface{}
-		wantStatus  int
+		commentId  string
+		body       interface{}
+		wantStatus int
 	}{
 		{
 			name: "positive_update_comment",
@@ -519,7 +522,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
+			commentId: validId,
 			body: &models.Comment{
 				Content: contentExample,
 			},
@@ -537,7 +540,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   invalidId,
+			commentId: invalidId,
 			body: &models.Comment{
 				Content: contentExample,
 			},
@@ -555,7 +558,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
+			commentId: validId,
 			body: map[string]interface{}{
 				"content": 12,
 			},
@@ -575,7 +578,7 @@ func TestCommentHandlers_UpdateComment(t *testing.T) {
 				Login: accountLogin,
 				Role:  accountRole,
 			},
-			commentId:   validId,
+			commentId: validId,
 			body: &models.Comment{
 				Content: contentExample,
 			},

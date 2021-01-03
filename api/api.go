@@ -61,7 +61,7 @@ func NewApi(options ...func(api *Api)) *Api {
 	}
 
 	moviesHndl := NewMovieHandlers(a.Storage, a.TmdbClient, a.Logger)
-	commentsHndl := NewCommentHandlers(a.Storage, a.Logger)
+	commentsHndl := NewCommentHandlers(a.Storage, a.Notificator, a.Logger)
 
 	a.Router.Use(gin.Recovery())
 

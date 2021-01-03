@@ -34,8 +34,16 @@ func (p *Postgres) ListLikedCommentsForMovie(movieID, userID int) ([]int, error)
 	return ids, err
 }
 
-func (p *Postgres) LikeComment(userId int, commentId int) error {
+func (p *Postgres) LikeComment(userId int, commentId int, comment *models.Comment) error {
 	_, err := p.db.ExecOne("INSERT INTO liked_comments (user_id, comment_id) VALUES (?, ?)", userId, commentId)
+	if err != nil {
+		return err
+	}
+
+	comment.Id = commentId
+	err = p.db.Model(comment).
+		WherePK().
+		Select()
 
 	return err
 }

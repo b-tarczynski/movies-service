@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,6 +11,8 @@ import (
 	"github.com/BarTar213/movies-service/models"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/BarTar213/movies-service/utils"
+	notificator "github.com/BarTar213/notificator/client"
+	"github.com/BarTar213/notificator/senders"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,14 +21,16 @@ const (
 )
 
 type CommentHandlers struct {
-	storage storage.Storage
-	logger  *log.Logger
+	storage     storage.Storage
+	notificator notificator.Client
+	logger      *log.Logger
 }
 
-func NewCommentHandlers(storage storage.Storage, logger *log.Logger) *CommentHandlers {
+func NewCommentHandlers(storage storage.Storage, notificator notificator.Client, logger *log.Logger) *CommentHandlers {
 	return &CommentHandlers{
-		storage: storage,
-		logger:  logger,
+		storage:     storage,
+		notificator: notificator,
+		logger:      logger,
 	}
 }
 
@@ -69,7 +75,11 @@ func (h *CommentHandlers) LikeComment(c *gin.Context) {
 	if liked {
 		err = h.storage.DeleteCommentLike(account.ID, commentId)
 	} else {
-		err = h.storage.LikeComment(account.ID, commentId)
+		comment := &models.Comment{}
+		err = h.storage.LikeComment(account.ID, commentId, comment)
+		if err == nil {
+			go h.sendNotification(comment, account)
+		}
 	}
 	if err != nil {
 		handlePostgresError(c, h.logger, err, commentResource)
@@ -177,4 +187,21 @@ func (h *CommentHandlers) ListLikedComments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, commentIds)
+}
+
+
+func (h *CommentHandlers) sendNotification(comment *models.Comment, account *models.AccountInfo) {
+	internal := &senders.Internal{
+		ResourceID: comment.Id,
+		Resource:   "comment",
+		Tag:        fmt.Sprintf("movie/%d", comment.MovieId),
+		Recipients: []int{comment.UserId},
+		Data: map[string]string{
+			"user": account.Login,
+		},
+	}
+	_, _, err := h.notificator.SendInternal(context.Background(), "commentLike", internal)
+	if err != nil{
+		h.logger.Printf("send internal notification: %s", err)
+	}
 }
