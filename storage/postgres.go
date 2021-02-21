@@ -24,6 +24,7 @@ type Storage interface {
 
 	GetMovie(movie *models.Movie) error
 	ListMovies(title string, params *models.PaginationParams) ([]models.MoviePreview, error)
+	ListMoviesFromIDs(IDs []int) ([]models.MoviePreview, error)
 	AddRecentViewedMovie(userId int, movieId int) error
 
 	LikeMovie(userId int, movieId int) error

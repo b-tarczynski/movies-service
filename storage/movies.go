@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/BarTar213/movies-service/models"
+	"github.com/go-pg/pg/v10"
 )
 
 func (p *Postgres) GetMovie(movie *models.Movie) error {
@@ -24,6 +25,17 @@ func (p *Postgres) ListMovies(title string, params *models.PaginationParams) ([]
 		Order(params.OrderBy).
 		Offset(params.Offset).
 		Limit(params.Limit).
+		Select()
+
+	return movies, err
+}
+
+func (p *Postgres) ListMoviesFromIDs(IDs []int) ([]models.MoviePreview, error) {
+	movies := make([]models.MoviePreview, 0)
+	err := p.db.Model(&movies).
+		ExcludeColumn("rating").
+		Join("JOIN unnest(?::int[]) WITH ORDINALITY t(id, ord) USING (id)", pg.Array(IDs)).
+		Order("t.ord").
 		Select()
 
 	return movies, err

@@ -250,7 +250,6 @@ func (h *MovieHandlers) GetTrendingMovies(c *gin.Context) {
 		handleTMDBError(c, h.logger, status, err, creditsResource)
 		return
 	}
-
 	c.JSON(http.StatusOK, movies)
 	go h.AddMovies(movies)
 }
@@ -263,4 +262,20 @@ func (h *MovieHandlers) AddMovies(movies []models.TmdbMovie) {
 			h.logger.Printf("Storage add movie: %s", err)
 		}
 	}
+}
+
+func (h *MovieHandlers) GetTopRatedMovies(c *gin.Context) {
+	ids, status, err := h.tmdb.GetTopRatedMovies()
+	if err != nil || status != http.StatusOK {
+		handleTMDBError(c, h.logger, status, err, creditsResource)
+		return
+	}
+
+	movies, err := h.storage.ListMoviesFromIDs(ids)
+	if err != nil {
+		handlePostgresError(c, h.logger, err, ratingResource)
+		return
+	}
+
+	c.JSON(http.StatusOK, movies)
 }

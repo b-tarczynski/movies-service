@@ -21,3 +21,8 @@ GET http://localhost:8083/trending
 Accept: application/json
 
 ###
+
+GET http://localhost:8083/ranking
+Accept: application/json
+
+###
