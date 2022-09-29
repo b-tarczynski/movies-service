@@ -9,6 +9,7 @@ import (
 
 	"github.com/BarTar213/movies-service/api"
 	"github.com/BarTar213/movies-service/config"
+	"github.com/BarTar213/movies-service/metrics"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/BarTar213/movies-service/tmdb"
 	notificator "github.com/BarTar213/notificator/client"
@@ -37,12 +38,15 @@ func main() {
 	logger.Println("Connecting to notificator")
 	notificatorCli := notificator.New(conf.Notificator.Address, conf.Api.Timeout)
 
+	metricsCli := metrics.New()
+
 	a := api.NewApi(
 		api.WithConfig(conf),
 		api.WithLogger(logger),
 		api.WithStorage(postgres),
 		api.WithTmdbClient(tmdbClient),
 		api.WithNotificator(notificatorCli),
+		api.WithMetrics(metricsCli),
 	)
 
 	go a.Run()
