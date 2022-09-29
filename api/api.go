@@ -4,11 +4,13 @@ import (
 	"log"
 
 	"github.com/BarTar213/movies-service/config"
+	"github.com/BarTar213/movies-service/metrics"
 	"github.com/BarTar213/movies-service/middleware"
 	"github.com/BarTar213/movies-service/storage"
 	"github.com/BarTar213/movies-service/tmdb"
 	notificator "github.com/BarTar213/notificator/client"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Api struct {
@@ -18,6 +20,7 @@ type Api struct {
 	Storage     storage.Storage
 	TmdbClient  tmdb.Client
 	Notificator notificator.Client
+	Metrics     *metrics.Metrics
 	Logger      *log.Logger
 }
 
@@ -51,6 +54,12 @@ func WithNotificator(notificator notificator.Client) func(a *Api) {
 	}
 }
 
+func WithMetrics(metrics *metrics.Metrics) func(a *Api) {
+	return func(a *Api) {
+		a.Metrics = metrics
+	}
+}
+
 func NewApi(options ...func(api *Api)) *Api {
 	a := &Api{
 		Router: gin.Default(),
@@ -80,8 +89,8 @@ func NewApi(options ...func(api *Api)) *Api {
 		}
 
 		standard.GET("/trending", moviesHndl.GetTrendingMovies)
-		standard.GET("/test", moviesHndl.Test)
 		standard.GET("/ranking", moviesHndl.GetTopRatedMovies)
+		standard.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	}
 
 	authorized := a.Router.Group("")
